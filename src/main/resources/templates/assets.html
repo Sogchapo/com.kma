@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>KMA IT Management Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for dropdown toggles and toast animations -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Floating Toast Notification Banner -->
+    <div th:if="${toastMessage}" 
+         x-data="{ show: true }" 
+         x-show="show" 
+         x-init="setTimeout(() => show = false, 4000)"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-2 scale-95"
+         x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 transform translate-y-2 scale-95"
+         class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700">
+        
+        <!-- Dynamic Icon based on Toast Type -->
+        <span th:if="${toastType == 'success'}" class="text-emerald-400 text-lg">✅</span>
+        <span th:if="${toastType == 'warning'}" class="text-amber-400 text-lg">⚠️</span>
+        <span th:if="${toastType == 'error'}" class="text-rose-400 text-lg">🚨</span>
+        <span th:if="${toastType == null}" class="text-teal-400 text-lg">ℹ️</span>
+        
+        <div class="text-sm font-medium pr-2" th:text="${toastMessage}">
+            Operation completed successfully!
+        </div>
+
+        <!-- Close Button -->
+        <button @click="show = false" class="text-gray-400 hover:text-white text-xs p-1 focus:outline-none">
+            ✕
+        </button>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <div class="w-64 bg-slate-800 text-white flex flex-col">
+            <div class="h-16 flex items-center justify-center border-b border-slate-700">
+                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
+                    Dashboard
+                </a>
+                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Assets Inventory
+                </a>
+                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Helpdesk / Tickets
+                </a>
+                
+                <!-- ONLY VISIBLE TO ADMINS -->
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    User Management
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
+                KMA IT MANAGEMENT SYSTEM &copy; 2026
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+                <h1 class="text-xl font-bold text-gray-800">IT Infrastructure Dashboard</h1>
+                
+                <!-- Right Side: User Profile, Notification Bell & Logout -->
+                <div class="flex items-center space-x-4">
+
+                    <!-- Notification Bell Dropdown Widget -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" 
+                                class="relative p-2 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition focus:outline-none">
+                            <span class="text-lg">🔔</span>
+                            <!-- Unread Badge Counter -->
+                            <span th:if="${unreadCount != null and unreadCount > 0}" 
+                                  th:text="${unreadCount}"
+                                  class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                0
+                            </span>
+                        </button>
+
+                        <!-- Dropdown Menu Box -->
+                        <div x-show="open" 
+                             @click.away="open = false" 
+                             x-transition
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 overflow-hidden"
+                             style="display: none;">
+                            
+                            <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Notifications</span>
+                                <span class="text-[10px] font-semibold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full" 
+                                      th:text="${unreadCount != null ? unreadCount : 0} + ' Unread'">
+                                    0 Unread
+                                </span>
+                            </div>
+
+                            <!-- Notifications List -->
+                            <div class="max-h-64 overflow-y-auto divide-y divide-gray-50">
+                                <div th:each="note : ${notifications}" 
+                                     th:classappend="${!note.read} ? 'bg-teal-50/30' : 'bg-white'"
+                                     class="p-3 hover:bg-gray-50 transition flex justify-between items-start">
+                                    <div class="space-y-1 pr-2">
+                                        <p class="text-xs font-semibold text-gray-800" th:text="${note.title}">Notification Title</p>
+                                        <p class="text-[11px] text-gray-500 leading-snug" th:text="${note.message}">Details about status update...</p>
+                                        <p class="text-[9px] text-gray-400" th:text="${#temporals.format(note.createdAt, 'MMM dd, HH:mm')}">Date</p>
+                                    </div>
+                                    <a th:if="${!note.read}" 
+                                       th:href="@{/notifications/read/{id}(id=${note.id})}" 
+                                       class="text-[10px] font-semibold text-teal-600 hover:text-teal-800 whitespace-nowrap bg-teal-100/50 px-2 py-0.5 rounded">
+                                        Mark Read
+                                    </a>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div th:if="${#lists.isEmpty(notifications)}" class="p-6 text-center text-xs text-gray-400">
+                                    No notifications available.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-6 w-px bg-gray-200"></div>
+
+                    <!-- User Information -->
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
+                        <!-- Dynamic Role Badges -->
+                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                            Admin
+                        </span>
+                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">
+                            User
+                        </span>
+                    </div>
+
+                    <!-- User Initial Avatar -->
+                    <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-sm shadow-sm"
+                         th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
+                        U
+                    </div>
+                    
+                    <!-- Logout Form -->
+                    <form th:action="@{/logout}" method="post" class="inline ml-1">
+                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition border border-rose-200">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <!-- Dashboard Statistics and Grid Content -->
+            <main class="p-8 space-y-6">
+                
+                <!-- KPI Statistics Rows -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-semibold">Total Assets Tracked</p>
+                            <h3 class="text-3xl font-bold text-gray-800" th:text="${assetCount != null ? assetCount : 0}">0</h3>
+                        </div>
+                        <div class="p-3 bg-teal-100 text-teal-600 rounded-full">🖥️</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-semibold">Active Hardware</p>
+                            <h3 class="text-3xl font-bold text-emerald-600" th:text="${activeAssets != null ? activeAssets : 0}">0</h3>
+                        </div>
+                        <div class="p-3 bg-emerald-100 text-emerald-600 rounded-full">⚡</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-semibold">Open IT Support Tickets</p>
+                            <h3 class="text-3xl font-bold text-rose-600" th:text="${openTickets != null ? openTickets : 0}">0</h3>
+                        </div>
+                        <div class="p-3 bg-rose-100 text-rose-600 rounded-full">🚨</div>
+                    </div>
+                </div>
+
+                <!-- Asset Database Grid Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-gray-800">Hardware & Infrastructure Inventory</h2>
+                        
+                        <!-- Action Buttons Group -->
+                        <div class="flex items-center space-x-3">
+                            <a th:href="@{/assets/export/excel}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-2">
+                                📊 Export Excel
+                            </a>
+                            
+                            <!-- ONLY VISIBLE TO ADMINS -->
+                            <a sec:authorize="hasRole('ADMIN')" th:href="@{/assets/new}" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm">
+                                + Add New Asset
+                            </a>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                    <th class="py-3.5 px-6 font-semibold">Asset Name / Model</th>
+                                    <th class="py-3.5 px-6 font-semibold">Type</th>
+                                    <th class="py-3.5 px-6 font-semibold">Asset Tag</th>
+                                    <th class="py-3.5 px-6 font-semibold">Location</th>
+                                    <th class="py-3.5 px-6 font-semibold">Status</th>
+                                    
+                                    <!-- ONLY VISIBLE TO ADMINS -->
+                                    <th sec:authorize="hasRole('ADMIN')" class="py-3.5 px-6 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                                <!-- Existing Assets Iterator -->
+                                <tr th:each="asset : ${assets}" class="hover:bg-gray-50 transition">
+                                    <td class="py-4 px-6 font-semibold text-gray-900" th:text="${asset.name}">Asset Model</td>
+                                    <td class="py-4 px-6" th:text="${asset.type}">Category</td>
+                                    <td class="py-4 px-6 font-mono text-xs text-gray-500" th:text="${asset.assetTag}">TAG-XXXXXX</td>
+                                    <td class="py-4 px-6" th:text="${asset.location}">Location</td>
+                                    <td class="py-4 px-6">
+                                        <span th:text="${asset.status}" 
+                                              th:classappend="${asset.status == 'Active' ? 'bg-emerald-100 text-emerald-800' : (asset.status == 'Maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800')}"
+                                              class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                                            Status
+                                        </span>
+                                    </td>
+                                    
+                                    <!-- ONLY VISIBLE TO ADMINS -->
+                                    <td sec:authorize="hasRole('ADMIN')" class="py-4 px-6 text-sm font-medium text-right space-x-3 whitespace-nowrap">
+                                        <a th:href="@{/assets/edit/{id}(id=${asset.id})}" class="text-teal-600 hover:text-teal-900 transition font-semibold">
+                                            Edit
+                                        </a>
+                                        <a th:href="@{/assets/delete/{id}(id=${asset.id})}" 
+                                           onclick="return confirm('Are you sure you want to permanently delete this hardware asset from inventory?');" 
+                                           class="text-rose-600 hover:text-rose-900 transition font-semibold">
+                                            Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Fallback State for Empty Lists -->
+                                <tr th:if="${#lists.isEmpty(assets)}">
+                                    <td sec:authorize="hasRole('ADMIN')" colspan="6" class="py-12 text-center text-gray-400 bg-gray-50/50">
+                                        <div class="text-2xl mb-1">📦</div>
+                                        <p class="text-sm font-medium">No infrastructure assets found in the system registry.</p>
+                                    </td>
+                                    <td sec:authorize="hasRole('USER')" colspan="5" class="py-12 text-center text-gray-400 bg-gray-50/50">
+                                        <div class="text-2xl mb-1">📦</div>
+                                        <p class="text-sm font-medium">No infrastructure assets found in the system registry.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+</body>
+</html>

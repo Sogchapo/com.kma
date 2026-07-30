@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Requests - KMA IT Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
+<body class="bg-gray-100 font-sans" x-data="{ openModal: false }">
+
+    <!-- Toast Notification Banner -->
+    <div th:if="${toastMessage}" 
+         x-data="{ show: true }" 
+         x-show="show" 
+         x-init="setTimeout(() => show = false, 4000)"
+         class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700">
+        <span th:text="${toastMessage}">Operation completed</span>
+        <button @click="show = false" class="text-gray-400 hover:text-white text-xs ml-2">✕</button>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <div class="w-64 bg-slate-800 text-white flex flex-col">
+            <div class="h-16 flex items-center justify-center border-b border-slate-700">
+                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Dashboard
+                </a>
+                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Assets Inventory
+                </a>
+                <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
+                    Item Requests
+                </a>
+                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Helpdesk / Tickets
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    User Management
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
+                KMA IT MANAGEMENT SYSTEM &copy; 2026
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            
+            <!-- Header -->
+            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+                <h1 class="text-xl font-bold text-gray-800">Staff Hardware & Item Requests</h1>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
+                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700">Admin</span>
+                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700">Staff</span>
+                    </div>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg">Logout</button>
+                    </form>
+                </div>
+            </header>
+
+            <!-- Main Workspace -->
+            <main class="p-8 space-y-6">
+                
+                <!-- Action Bar & Stats -->
+                <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">Request Queue</h2>
+                        <p class="text-xs text-gray-500">Track and approve hardware/item requisitions.</p>
+                    </div>
+                    
+                    <button @click="openModal = true" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow transition">
+                        + Submit Item Request
+                    </button>
+                </div>
+
+                <!-- Requests Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                    <th class="py-3.5 px-6 font-semibold">Requested By</th>
+                                    <th class="py-3.5 px-6 font-semibold">Item Requested</th>
+                                    <th class="py-3.5 px-6 font-semibold">Department</th>
+                                    <th class="py-3.5 px-6 font-semibold">Reason</th>
+                                    <th class="py-3.5 px-6 font-semibold">Status</th>
+                                    <th sec:authorize="hasRole('ADMIN')" class="py-3.5 px-6 font-semibold text-right">Admin Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                                <tr th:each="req : ${requests}" class="hover:bg-gray-50 transition">
+                                    <td class="py-4 px-6 font-semibold text-gray-900" th:text="${req.requestedBy}">User</td>
+                                    <td class="py-4 px-6 font-medium text-teal-700" th:text="${req.itemRequested}">Item</td>
+                                    <td class="py-4 px-6" th:text="${req.department}">Department</td>
+                                    <td class="py-4 px-6 text-gray-500 text-xs" th:text="${req.reason}">Reason detail...</td>
+                                    <td class="py-4 px-6">
+                                        <span th:text="${req.status}"
+                                              th:classappend="${req.status.name() == 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : (req.status.name() == 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800')}"
+                                              class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                                            PENDING
+                                        </span>
+                                    </td>
+                                    
+                                    <!-- Admin Review Controls -->
+                                    <td sec:authorize="hasRole('ADMIN')" class="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                                        <div th:if="${req.status.name() == 'PENDING'}" class="inline-flex items-center space-x-2">
+                                            <!-- Approve Button -->
+                                            <form th:action="@{/requests/approve/{id}(id=${req.id})}" method="post" class="inline">
+                                                <button type="submit" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold px-3 py-1.5 rounded-md transition border border-emerald-200">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                            <!-- Reject Button -->
+                                            <form th:action="@{/requests/reject/{id}(id=${req.id})}" method="post" class="inline">
+                                                <input type="hidden" name="adminComments" value="Request denied by administration." />
+                                                <button type="submit" class="bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold px-3 py-1.5 rounded-md transition border border-rose-200">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <span th:if="${req.status.name() != 'PENDING'}" class="text-xs text-gray-400 italic">
+                                            Processed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr th:if="${#lists.isEmpty(requests)}">
+                                    <td colspan="6" class="py-12 text-center text-gray-400">
+                                        No staff requests currently submitted.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+    <!-- SUBMIT NEW REQUEST MODAL -->
+    <div x-show="openModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 flex items-center justify-center p-4" style="display: none;">
+        <div @click.away="openModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-gray-800">New Item Request</h3>
+                <button @click="openModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+
+            <form th:action="@{/requests/new}" th:object="${newRequest}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Item Requested</label>
+                    <input type="text" th:field="*{itemRequested}" placeholder="e.g. Ergonomic Chair, Wireless Mouse" required
+                           class="w-full px-3.5 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Department</label>
+                    <input type="text" th:field="*{department}" placeholder="e.g. Finance, HR, Operations" required
+                           class="w-full px-3.5 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Reason for Request</label>
+                    <textarea th:field="*{reason}" rows="3" placeholder="Explain why this item is needed..." required
+                              class="w-full px-3.5 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" @click="openModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow">
+                        Submit Requisition
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

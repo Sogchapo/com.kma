@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>KMA IT Portal - Ticket Action Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Toast Notification Banner -->
+    <div th:if="${toastMessage}" 
+         x-data="{ show: true }" 
+         x-show="show" 
+         x-init="setTimeout(() => show = false, 4000)"
+         class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700">
+        <span th:if="${toastType == 'success'}" class="text-emerald-400 text-lg">✅</span>
+        <span th:if="${toastType == 'warning'}" class="text-amber-400 text-lg">⚠️</span>
+        <span th:if="${toastType == 'error'}" class="text-rose-400 text-lg">🚨</span>
+        <span th:if="${toastType == null}" class="text-teal-400 text-lg">ℹ️</span>
+        <div class="text-sm font-medium pr-2" th:text="${toastMessage}">Operation successful!</div>
+        <button @click="show = false" class="text-gray-400 hover:text-white text-xs p-1 focus:outline-none">✕</button>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <div class="w-64 bg-slate-800 text-white flex flex-col">
+            <div class="h-16 flex items-center justify-center border-b border-slate-700">
+                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Dashboard
+                </a>
+                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Assets
+                </a>
+                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
+                    Helpdesk / Tickets
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    User Management
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
+                KMA IT MANAGEMENT SYSTEM &copy; 2026
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+                <h1 class="text-xl font-bold text-gray-800">Ticket Management Center</h1>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="relative p-2 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition focus:outline-none">
+                            <span class="text-lg">🔔</span>
+                            <span th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}" class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">0</span>
+                        </button>
+
+                        <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 overflow-hidden" style="display: none;">
+                            <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Notifications</span>
+                                <span class="text-[10px] font-semibold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full" th:text="${unreadCount != null ? unreadCount : 0} + ' Unread'">0 Unread</span>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto divide-y divide-gray-50">
+                                <div th:each="note : ${notifications}" th:classappend="${!note.read} ? 'bg-teal-50/30' : 'bg-white'" class="p-3 hover:bg-gray-50 transition flex justify-between items-start">
+                                    <div class="space-y-1 pr-2">
+                                        <p class="text-xs font-semibold text-gray-800" th:text="${note.title}">Notification Title</p>
+                                        <p class="text-[11px] text-gray-500 leading-snug" th:text="${note.message}">Details...</p>
+                                        <p class="text-[9px] text-gray-400" th:text="${#temporals.format(note.createdAt, 'MMM dd, HH:mm')}">Date</p>
+                                    </div>
+                                    <a th:if="${!note.read}" th:href="@{/notifications/read/{id}(id=${note.id})}" class="text-[10px] font-semibold text-teal-600 hover:text-teal-800 whitespace-nowrap bg-teal-100/50 px-2 py-0.5 rounded">Mark Read</a>
+                                </div>
+                                <div th:if="${#lists.isEmpty(notifications)}" class="p-6 text-center text-xs text-gray-400">No notifications available.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-6 w-px bg-gray-200"></div>
+
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
+                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">Admin</span>
+                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">User</span>
+                    </div>
+
+                    <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-sm shadow-sm" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">U</div>
+                    
+                    <form th:action="@{/logout}" method="post" class="inline ml-1">
+                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition border border-rose-200">Logout</button>
+                    </form>
+                </div>
+            </header>
+
+            <!-- Main Layout Container -->
+            <main class="p-8 max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Left Section: Details & Discussion -->
+                <div class="md:col-span-2 space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400" th:text="'Ticket #' + ${ticket.id}">#0</span>
+                                <h2 class="text-xl font-bold text-gray-800 mt-0.5" th:text="${ticket.title}">Ticket Title</h2>
+                            </div>
+                            <span th:text="${ticket.priority}" 
+                                  th:classappend="${ticket.priority == 'Critical' || ticket.priority == 'High' ? 'bg-rose-100 text-rose-800' : (ticket.priority == 'Medium' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800')}"
+                                  class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                                Priority
+                            </span>
+                        </div>
+                        
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description of Issue</h4>
+                                <p class="text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100 leading-relaxed whitespace-pre-line text-sm" th:text="${ticket.description}">
+                                    Issue details...
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 pt-2">
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Submitted By</h4>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1 whitespace-nowrap" th:text="${ticket.submittedBy}">Employee</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Logged Timestamp</h4>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1 whitespace-nowrap" 
+                                       th:text="${ticket.createdAt != null ? #temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">Date</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-start">
+                            <a th:href="@{/tickets}" class="text-sm font-semibold text-teal-600 hover:text-teal-700 transition flex items-center">
+                                ← Back to Log Grid
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Comment Thread -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+                        <h3 class="text-base font-bold text-gray-800 border-b border-gray-100 pb-3 flex items-center justify-between">
+                            <span>Discussion & Updates</span>
+                            <span class="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full" th:text="${comments != null ? #lists.size(comments) : 0} + ' Comments'">0 Comments</span>
+                        </h3>
+
+                        <div class="space-y-4 max-h-96 overflow-y-auto pr-1">
+                            <div th:each="comment : ${comments}" class="flex space-x-3 text-sm">
+                                <div class="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center font-bold text-xs flex-shrink-0"
+                                     th:text="${comment.author != null ? #strings.substring(comment.author, 0, 1).toUpperCase() : 'U'}">
+                                    U
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-3.5 border border-gray-100">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-semibold text-gray-900 text-xs" th:text="${comment.author}">User</span>
+                                        <span class="text-[10px] text-gray-400" 
+                                              th:text="${comment.createdAt != null ? #temporals.format(comment.createdAt, 'MMM dd, HH:mm') : ''}">Time</span>
+                                    </div>
+                                    <p class="text-gray-700 whitespace-pre-wrap text-xs leading-relaxed" th:text="${comment.content}">Comment text...</p>
+                                </div>
+                            </div>
+
+                            <div th:if="${#lists.isEmpty(comments)}" class="text-center py-6 text-xs text-gray-400">
+                                No comments posted yet. Start the conversation below!
+                            </div>
+                        </div>
+
+                        <form th:action="@{/tickets/detail/{id}/comment(id=${ticket.id})}" method="POST" class="space-y-3 pt-4 border-t border-gray-100">
+                            <div>
+                                <textarea name="content" rows="3" required placeholder="Type an update or comment..." 
+                                          class="w-full text-xs border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"></textarea>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition uppercase tracking-wider shadow-sm">
+                                    Post Comment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Section: Controls -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-fit space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Current Status</h3>
+                        <span th:text="${ticket.status}" 
+                              th:classappend="${ticket.status == 'Resolved' ? 'bg-emerald-100 text-emerald-800' : (ticket.status == 'In Progress' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800')}"
+                              class="px-3 py-1.5 inline-block rounded-full text-sm font-bold tracking-wide whitespace-nowrap">
+                            Status
+                        </span>
+                    </div>
+
+                    <hr class="border-gray-100" />
+
+                    <!-- Update Status Form (Admin Allowed) -->
+                    <form sec:authorize="hasRole('ADMIN')" th:action="@{/tickets/detail/{id}/update-status(id=${ticket.id})}" method="POST" class="space-y-4">
+                        <div>
+                            <label for="status" class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Update Workflow State</label>
+                            <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition text-sm font-medium cursor-pointer">
+                                <option value="Open" th:selected="${ticket.status == 'Open'}">Open</option>
+                                <option value="In Progress" th:selected="${ticket.status == 'In Progress'}">In Progress</option>
+                                <option value="Resolved" th:selected="${ticket.status == 'Resolved'}">Resolved</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold py-2.5 rounded-lg transition tracking-wide uppercase shadow-sm">
+                            Apply Status
+                        </button>
+                    </form>
+
+                    <div sec:authorize="hasRole('USER')" class="text-xs text-gray-400 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        Status updates are handled by KMA IT Support Admins.
+                    </div>
+
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <hr class="border-gray-100 mb-6" />
+                        <h4 class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-2">Danger Zone</h4>
+                        <a th:href="@{/tickets/delete/{id}(id=${ticket.id})}" 
+                           onclick="return confirm('Are you sure you want to permanently delete this support ticket?');"
+                           class="w-full inline-block text-center bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold py-2 rounded-lg transition tracking-wide uppercase">
+                            Delete Ticket
+                        </a>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+</body>
+</html>
