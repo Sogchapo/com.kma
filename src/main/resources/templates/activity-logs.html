@@ -12,7 +12,7 @@
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white flex flex-col">
+        <div class="w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-20 border-r border-slate-700/50">
             <div class="h-16 flex items-center justify-center border-b border-slate-700">
                 <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
             </div>
@@ -43,10 +43,11 @@
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Main Content Area with kma2.jpg Background -->
+        <div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-cover bg-fixed relative"
+             th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10)), url(' + @{/images/kma5.jpg} + ');'">
             
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-8 sticky top-0 z-30 border-b border-gray-200/50">
                 <h1 class="text-xl font-bold text-gray-800">User Activity Logs</h1>
                 <div class="flex items-center space-x-4">
                     <div class="text-right">
@@ -57,7 +58,7 @@
             </header>
 
             <main class="p-8 space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-white/90 backdrop-blur-md rounded-xl shadow-sm border border-white/60 overflow-hidden">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="text-lg font-bold text-gray-800">Staff Login & Logout Audit Trail</h2>
                     </div>
@@ -65,19 +66,19 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                <tr class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
                                     <th class="py-3.5 px-6 font-semibold">User</th>
                                     <th class="py-3.5 px-6 font-semibold">Action</th>
                                     <th class="py-3.5 px-6 font-semibold">IP Address</th>
                                     <th class="py-3.5 px-6 font-semibold">Timestamp</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
-                                <tr th:each="log : ${logs}" class="hover:bg-gray-50 transition">
+                            <tbody class="divide-y divide-gray-100/80 text-sm text-gray-700">
+                                <tr th:each="log : ${logs}" class="hover:bg-teal-50/40 transition">
                                     <td class="py-4 px-6 font-semibold text-gray-900" th:text="${log.username}">username</td>
                                     <td class="py-4 px-6">
                                         <span th:text="${log.action}" 
-                                              th:classappend="${log.action == 'LOGIN' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}"
+                                              th:classappend="${log.action == 'LOGIN' ? 'bg-emerald-100/80 text-emerald-800' : 'bg-rose-100/80 text-rose-800'}"
                                               class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                                             ACTION
                                         </span>
@@ -87,7 +88,7 @@
                                 </tr>
 
                                 <tr th:if="${#lists.isEmpty(logs)}">
-                                    <td colspan="4" class="py-12 text-center text-gray-400 bg-gray-50/50">
+                                    <td colspan="4" class="py-12 text-center text-gray-400 bg-white/40">
                                         <p class="text-sm font-medium">No activity logged yet.</p>
                                     </td>
                                 </tr>

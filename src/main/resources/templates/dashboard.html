@@ -42,7 +42,7 @@
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white flex flex-col">
+        <div class="w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-20 border-r border-slate-700/50">
             <div class="h-16 flex items-center justify-center border-b border-slate-700">
                 <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
             </div>
@@ -74,11 +74,12 @@
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Main Content Area with kma7.jpeg Background -->
+        <div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-cover bg-fixed relative"
+             th:style="'background-image: linear-gradient(rgba(241, 245, 249, 0.10), rgba(241, 245, 249, 0.10)), url(' + @{/images/kma7.jpeg} + ');'">
             
             <!-- Top Navbar -->
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-8 sticky top-0 z-30 border-b border-gray-200/50">
                 <h1 class="text-xl font-bold text-gray-800">SYSTEM MANAGEMENT DASHBOARD</h1>
                 
                 <!-- Right Side: User Profile, Notification Bell & Logout -->
@@ -87,7 +88,7 @@
                     <!-- Notification Bell Dropdown Widget -->
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" 
-                                class="relative p-2 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition focus:outline-none">
+                                class="relative p-2 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition focus:outline-none border border-gray-200/60">
                             <span class="text-lg">🔔</span>
                             <!-- Unread Badge Counter -->
                             <span th:if="${unreadCount != null and unreadCount > 0}" 
@@ -101,7 +102,7 @@
                         <div x-show="open" 
                              @click.away="open = false" 
                              x-transition
-                             class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 overflow-hidden"
+                             class="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden"
                              style="display: none;">
                             
                             <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
@@ -179,54 +180,54 @@
             <!-- Dashboard Statistics and Grid Content -->
             <main class="p-8 space-y-6">
                 
-                <!-- KPI Statistics Rows (Adjusted to 4 Columns) -->
+                <!-- KPI Statistics Rows (4 Columns) -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     
                     <!-- TOTAL ASSETS TRACKED -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                    <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 flex justify-between items-center hover:shadow-md transition">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Total Assets</p>
                             <h3 class="text-2xl font-bold text-gray-800" 
                                 th:text="${assetCount != null ? assetCount : (assets != null ? #lists.size(assets) : 0)}">0</h3>
                         </div>
-                        <div class="p-3 bg-teal-100 text-teal-600 rounded-full">🖥️</div>
+                        <div class="p-3 bg-teal-100/80 text-teal-600 rounded-xl">🖥️</div>
                     </div>
 
                     <!-- ACTIVE HARDWARE -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                    <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 flex justify-between items-center hover:shadow-md transition">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Active Hardware</p>
                             <h3 class="text-2xl font-bold text-emerald-600" 
                                 th:text="${activeAssets != null ? activeAssets : (assets != null ? #lists.size(assets.?[status == 'Active']) : 0)}">0</h3>
                         </div>
-                        <div class="p-3 bg-emerald-100 text-emerald-600 rounded-full">⚡</div>
+                        <div class="p-3 bg-emerald-100/80 text-emerald-600 rounded-xl">⚡</div>
                     </div>
 
                     <!-- OPEN SUPPORT TICKETS -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                    <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 flex justify-between items-center hover:shadow-md transition">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Open Tickets</p>
                             <h3 class="text-2xl font-bold text-rose-600" 
                                 th:text="${openTickets != null ? openTickets : 0}">0</h3>
                         </div>
-                        <div class="p-3 bg-rose-100 text-rose-600 rounded-full">🚨</div>
+                        <div class="p-3 bg-rose-100/80 text-rose-600 rounded-xl">🚨</div>
                     </div>
 
                     <!-- PENDING REQUESTS -->
-                    <a th:href="@{/requests}" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center hover:border-amber-300 transition">
+                    <a th:href="@{/requests}" class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60 flex justify-between items-center hover:border-amber-400 hover:shadow-md transition">
                         <div>
                             <p class="text-xs text-gray-500 uppercase font-semibold">Pending Requests</p>
                             <h3 class="text-2xl font-bold text-amber-600" 
                                 th:text="${pendingRequests != null ? pendingRequests : 0}">0</h3>
                         </div>
-                        <div class="p-3 bg-amber-100 text-amber-600 rounded-full">📋</div>
+                        <div class="p-3 bg-amber-100/80 text-amber-600 rounded-xl">📋</div>
                     </a>
 
                 </div>
 
                 <!-- Asset Database Grid Section -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-white/60 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100/80 flex justify-between items-center">
                         <h2 class="text-lg font-bold text-gray-800">Hardware & Infrastructure Inventory</h2>
                         
                         <!-- Action Buttons Group -->
@@ -244,7 +245,7 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                <tr class="bg-gray-50/70 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
                                     <th class="py-3.5 px-6 font-semibold">Asset Name / Model</th>
                                     <th class="py-3.5 px-6 font-semibold">Type</th>
                                     <th class="py-3.5 px-6 font-semibold">Asset Tag</th>
@@ -255,16 +256,16 @@
                                     <th sec:authorize="hasRole('ADMIN')" class="py-3.5 px-6 font-semibold text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                            <tbody class="divide-y divide-gray-100/80 text-sm text-gray-700">
                                 <!-- Existing Assets Iterator -->
-                                <tr th:each="asset : ${assets}" class="hover:bg-gray-50 transition">
+                                <tr th:each="asset : ${assets}" class="hover:bg-teal-50/40 transition">
                                     <td class="py-4 px-6 font-semibold text-gray-900" th:text="${asset.name}">Asset Model</td>
                                     <td class="py-4 px-6" th:text="${asset.type}">Category</td>
                                     <td class="py-4 px-6 font-mono text-xs text-gray-500" th:text="${asset.assetTag}">TAG-XXXXXX</td>
                                     <td class="py-4 px-6" th:text="${asset.location}">Location</td>
                                     <td class="py-4 px-6">
                                         <span th:text="${asset.status}" 
-                                              th:classappend="${asset.status == 'Active' ? 'bg-emerald-100 text-emerald-800' : (asset.status == 'Maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800')}"
+                                              th:classappend="${asset.status == 'Active' ? 'bg-emerald-100/80 text-emerald-800' : (asset.status == 'Maintenance' ? 'bg-amber-100/80 text-amber-800' : 'bg-gray-100/80 text-gray-800')}"
                                               class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                                             Status
                                         </span>
@@ -285,11 +286,11 @@
                                 
                                 <!-- Fallback State for Empty Lists -->
                                 <tr th:if="${#lists.isEmpty(assets)}">
-                                    <td sec:authorize="hasRole('ADMIN')" colspan="6" class="py-12 text-center text-gray-400 bg-gray-50/50">
+                                    <td sec:authorize="hasRole('ADMIN')" colspan="6" class="py-12 text-center text-gray-400 bg-white/40">
                                         <div class="text-2xl mb-1">📦</div>
                                         <p class="text-sm font-medium">No infrastructure assets found in the system registry.</p>
                                     </td>
-                                    <td sec:authorize="hasRole('USER')" colspan="5" class="py-12 text-center text-gray-400 bg-gray-50/50">
+                                    <td sec:authorize="hasRole('USER')" colspan="5" class="py-12 text-center text-gray-400 bg-white/40">
                                         <div class="text-2xl mb-1">📦</div>
                                         <p class="text-sm font-medium">No infrastructure assets found in the system registry.</p>
                                     </td>

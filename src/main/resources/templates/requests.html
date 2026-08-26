@@ -14,6 +14,12 @@
          x-data="{ show: true }" 
          x-show="show" 
          x-init="setTimeout(() => show = false, 4000)"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-2 scale-95"
+         x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 transform translate-y-2 scale-95"
          class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700">
         <span th:text="${toastMessage}">Operation completed</span>
         <button @click="show = false" class="text-gray-400 hover:text-white text-xs ml-2">✕</button>
@@ -22,7 +28,7 @@
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white flex flex-col">
+        <div class="w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-20 border-r border-slate-700/50">
             <div class="h-16 flex items-center justify-center border-b border-slate-700">
                 <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
             </div>
@@ -48,20 +54,22 @@
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Main Content Area with kma9.jpeg Background -->
+        <!-- Updated Background Classes: bg-contain & bg-center -->
+<div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-contain bg-fixed relative bg-white"
+     th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.25)), url(' + @{/images/kma9.jpg} + ');'">
             
-            <!-- Header -->
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+            <!-- Header Bar -->
+            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-8 sticky top-0 z-30 border-b border-gray-200/50">
                 <h1 class="text-xl font-bold text-gray-800">Staff Hardware & Item Requests</h1>
                 <div class="flex items-center space-x-4">
                     <div class="text-right">
                         <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
-                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700">Admin</span>
-                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700">Staff</span>
+                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">Admin</span>
+                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">Staff</span>
                     </div>
                     <form th:action="@{/logout}" method="post">
-                        <button type="submit" class="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg">Logout</button>
+                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition border border-rose-200">Logout</button>
                     </form>
                 </div>
             </header>
@@ -69,24 +77,24 @@
             <!-- Main Workspace -->
             <main class="p-8 space-y-6">
                 
-                <!-- Action Bar & Stats -->
-                <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <!-- Action Bar -->
+                <div class="flex justify-between items-center bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60">
                     <div>
                         <h2 class="text-lg font-bold text-gray-800">Request Queue</h2>
                         <p class="text-xs text-gray-500">Track and approve hardware/item requisitions.</p>
                     </div>
                     
-                    <button @click="openModal = true" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow transition">
+                    <button @click="openModal = true" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm transition">
                         + Submit Item Request
                     </button>
                 </div>
 
-                <!-- Requests Table -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Requests Table Container -->
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-white/60 overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                <tr class="bg-gray-50/70 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
                                     <th class="py-3.5 px-6 font-semibold">Requested By</th>
                                     <th class="py-3.5 px-6 font-semibold">Item Requested</th>
                                     <th class="py-3.5 px-6 font-semibold">Department</th>
@@ -95,15 +103,15 @@
                                     <th sec:authorize="hasRole('ADMIN')" class="py-3.5 px-6 font-semibold text-right">Admin Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
-                                <tr th:each="req : ${requests}" class="hover:bg-gray-50 transition">
+                            <tbody class="divide-y divide-gray-100/80 text-sm text-gray-700">
+                                <tr th:each="req : ${requests}" class="hover:bg-teal-50/40 transition">
                                     <td class="py-4 px-6 font-semibold text-gray-900" th:text="${req.requestedBy}">User</td>
                                     <td class="py-4 px-6 font-medium text-teal-700" th:text="${req.itemRequested}">Item</td>
                                     <td class="py-4 px-6" th:text="${req.department}">Department</td>
                                     <td class="py-4 px-6 text-gray-500 text-xs" th:text="${req.reason}">Reason detail...</td>
                                     <td class="py-4 px-6">
                                         <span th:text="${req.status}"
-                                              th:classappend="${req.status.name() == 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : (req.status.name() == 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800')}"
+                                              th:classappend="${req.status.name() == 'APPROVED' ? 'bg-emerald-100/80 text-emerald-800' : (req.status.name() == 'REJECTED' ? 'bg-rose-100/80 text-rose-800' : 'bg-amber-100/80 text-amber-800')}"
                                               class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                                             PENDING
                                         </span>
@@ -133,7 +141,7 @@
                                 </tr>
 
                                 <tr th:if="${#lists.isEmpty(requests)}">
-                                    <td colspan="6" class="py-12 text-center text-gray-400">
+                                    <td colspan="6" class="py-12 text-center text-gray-400 bg-white/40">
                                         No staff requests currently submitted.
                                     </td>
                                 </tr>
@@ -148,9 +156,17 @@
     </div>
 
     <!-- SUBMIT NEW REQUEST MODAL -->
-    <div x-show="openModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 flex items-center justify-center p-4" style="display: none;">
-        <div @click.away="openModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
+    <div x-show="openModal" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" 
+         style="display: none;">
+        <div @click.away="openModal = false" class="bg-white/95 backdrop-blur-md rounded-2xl max-w-md w-full p-6 shadow-2xl border border-white/80 space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                 <h3 class="text-lg font-bold text-gray-800">New Item Request</h3>
                 <button @click="openModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
             </div>
@@ -159,26 +175,26 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Item Requested</label>
                     <input type="text" th:field="*{itemRequested}" placeholder="e.g. Ergonomic Chair, Wireless Mouse" required
-                           class="w-full px-3.5 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none" />
+                           class="w-full px-3.5 py-2 bg-white/80 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none" />
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Department</label>
                     <input type="text" th:field="*{department}" placeholder="e.g. Finance, HR, Operations" required
-                           class="w-full px-3.5 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none" />
+                           class="w-full px-3.5 py-2 bg-white/80 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none" />
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Reason for Request</label>
                     <textarea th:field="*{reason}" rows="3" placeholder="Explain why this item is needed..." required
-                              class="w-full px-3.5 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"></textarea>
+                              class="w-full px-3.5 py-2 bg-white/80 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" @click="openModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg">
+                    <button type="button" @click="openModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow">
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm transition">
                         Submit Requisition
                     </button>
                 </div>

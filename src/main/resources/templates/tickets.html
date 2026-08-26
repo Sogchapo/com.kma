@@ -39,7 +39,7 @@
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white flex flex-col">
+        <div class="w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-20 border-r border-slate-700/50">
             <div class="h-16 flex items-center justify-center border-b border-slate-700">
                 <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
             </div>
@@ -62,11 +62,13 @@
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Main Content Area with kma2 Image Background -->
+        <!-- Main Content Area with kma2 Image Background -->
+        <div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-cover bg-fixed relative"
+             th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), url(' + @{/images/kma2.jpg} + ');'">
             
             <!-- Top Navbar -->
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
+            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-8 sticky top-0 z-30 border-b border-gray-200/50">
                 <h1 class="text-xl font-bold text-gray-800">Helpdesk & Support</h1>
                 
                 <div class="flex items-center space-x-4">
@@ -85,7 +87,7 @@
                         <div x-show="open" 
                              @click.away="open = false" 
                              x-transition
-                             class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 overflow-hidden"
+                             class="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 py-2 z-50 overflow-hidden"
                              style="display: none;">
                             
                             <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
@@ -145,17 +147,18 @@
                 </div>
             </header>
 
-            <!-- Main Content -->
+            <!-- Main Workspace Content -->
             <main class="p-8 space-y-6">
+                <!-- Overview Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                    <div class="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/60 flex justify-between items-center">
                         <div>
                             <p class="text-sm text-gray-500 uppercase font-semibold">Total Tickets Logs</p>
                             <h3 class="text-3xl font-bold text-gray-800" th:text="${totalTickets}">0</h3>
                         </div>
                         <div class="p-3 bg-blue-100 text-blue-600 rounded-full">📄</div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                    <div class="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/60 flex justify-between items-center">
                         <div>
                             <p class="text-sm text-gray-500 uppercase font-semibold">Active / Open Tickets</p>
                             <h3 class="text-3xl font-bold text-rose-600" th:text="${openTickets}">0</h3>
@@ -164,7 +167,8 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Table Container -->
+                <div class="bg-white/90 backdrop-blur-md rounded-xl shadow-sm border border-white/60 overflow-hidden">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="text-lg font-bold text-gray-800">IT Assistance & Incident Logs</h2>
                         <a th:href="@{/tickets/new}" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm">
@@ -174,7 +178,7 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                <tr class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
                                     <th class="py-3.5 px-6 font-semibold">ID</th>
                                     <th class="py-3.5 px-6 font-semibold">Issue Title</th>
                                     <th class="py-3.5 px-6 font-semibold">Submitted By</th>
@@ -183,8 +187,8 @@
                                     <th class="py-3.5 px-6 font-semibold text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
-                                <tr th:each="ticket : ${tickets}" class="hover:bg-gray-50 transition">
+                            <tbody class="divide-y divide-gray-100/80 text-sm text-gray-700">
+                                <tr th:each="ticket : ${tickets}" class="hover:bg-teal-50/40 transition">
                                     <td class="py-4 px-6 font-mono text-xs text-gray-400" th:text="'#' + ${ticket.id}">#1</td>
                                     <td class="py-4 px-6">
                                         <div class="font-semibold text-gray-900" th:text="${ticket.title}">Title</div>
@@ -193,32 +197,32 @@
                                     <td class="py-4 px-6 text-gray-600" th:text="${ticket.submittedBy}">User Name</td>
                                     <td class="py-4 px-6">
                                         <span th:text="${ticket.priority}" 
-                                              th:classappend="${ticket.priority == 'Critical' || ticket.priority == 'High' ? 'bg-rose-100 text-rose-800' : (ticket.priority == 'Medium' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800')}"
+                                              th:classappend="${ticket.priority == 'Critical' || ticket.priority == 'High' ? 'bg-rose-100/80 text-rose-800' : (ticket.priority == 'Medium' ? 'bg-amber-100/80 text-amber-800' : 'bg-slate-100/80 text-slate-800')}"
                                               class="px-2.5 py-1 rounded-full text-xs font-semibold">
                                             Priority
                                         </span>
                                     </td>
                                     <td class="py-4 px-6">
                                         <span th:text="${ticket.status}" 
-                                              th:classappend="${ticket.status == 'Open' ? 'bg-blue-100 text-blue-800' : (ticket.status == 'In Progress' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800')}"
+                                              th:classappend="${ticket.status == 'Open' ? 'bg-blue-100/80 text-blue-800' : (ticket.status == 'In Progress' ? 'bg-amber-100/80 text-amber-800' : 'bg-emerald-100/80 text-emerald-800')}"
                                               class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                                             Status
                                         </span>
                                     </td>
                                     <td class="py-4 px-6 text-sm font-medium text-right space-x-3 whitespace-nowrap">
-                                        <a th:href="@{/tickets/detail/{id}(id=${ticket.id})}" class="text-teal-600 hover:text-teal-900 transition font-semibold text-xs bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-100">
+                                        <a th:href="@{/tickets/detail/{id}(id=${ticket.id})}" class="text-teal-600 hover:text-teal-900 transition font-semibold text-xs bg-teal-50/80 px-2.5 py-1 rounded-lg border border-teal-100">
                                             View & Comment
                                         </a>
                                         <a sec:authorize="hasRole('ADMIN')" 
                                            th:href="@{/tickets/delete/{id}(id=${ticket.id})}" 
                                            onclick="return confirm('Delete ticket entry?');" 
-                                           class="text-rose-600 hover:text-rose-900 transition font-semibold text-xs bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100">
+                                           class="text-rose-600 hover:text-rose-900 transition font-semibold text-xs bg-rose-50/80 px-2.5 py-1 rounded-lg border border-rose-100">
                                             Delete
                                         </a>
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(tickets)}">
-                                    <td colspan="6" class="py-12 text-center text-gray-400 bg-gray-50/50">No support tickets recorded.</td>
+                                    <td colspan="6" class="py-12 text-center text-gray-400 bg-white/40">No support tickets recorded.</td>
                                 </tr>
                             </tbody>
                         </table>
