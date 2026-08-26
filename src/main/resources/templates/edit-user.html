@@ -1,85 +1,135 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KMA IT Portal - Edit User</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for mobile drawer toggle -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans" x-data="{ mobileMenuOpen: false }">
 
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white flex flex-col">
-            <div class="h-16 flex items-center justify-center border-b border-slate-700">
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div x-show="mobileMenuOpen" 
+             @click="mobileMenuOpen = false"
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+             style="display: none;">
+        </div>
+
+        <!-- Sidebar Drawer -->
+        <div :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+             class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-50 border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-700">
                 <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
+                <!-- Mobile Menu Close Button -->
+                <button @click="mobileMenuOpen = false" class="lg:hidden text-gray-400 hover:text-white text-lg">
+                    ✕
+                </button>
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-2">
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                 <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Dashboard / Assets
+                    Dashboard
+                </a>
+                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Assets Inventory
+                </a>
+                <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Item Requests
                 </a>
                 <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
                     Helpdesk / Tickets
                 </a>
-                <a th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
+                
+                <!-- ONLY VISIBLE TO ADMINS -->
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
                     User Management
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Activity Logs
                 </a>
             </nav>
             <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
-                KMA IT MANAGEMENT SYSTEM &copy; 2026
+                KMA IT MANAGEMENT SYSTEM &copy; 2026 DESIGNED BY SOG TECH SOLUTIONS 
             </div>
         </div>
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
+        <div class="flex-1 flex flex-col overflow-y-auto w-full">
             
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
-                <h1 class="text-xl font-bold text-gray-800">User Management</h1>
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm font-medium text-gray-600">Admin User</span>
-                    <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold">A</div>
+            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30 border-b border-gray-200/50">
+                <div class="flex items-center space-x-3">
+                    <!-- Hamburger Toggle Button (Mobile Only) -->
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">User Management</h1>
+                </div>
+
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">Admin User</div>
+                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                            Admin
+                        </span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm"
+                         th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
+                        A
+                    </div>
                 </div>
             </header>
 
-            <main class="p-8 max-w-2xl mx-auto w-full">
+            <main class="p-4 sm:p-8 max-w-2xl mx-auto w-full">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     
-                    <div class="p-6 border-b border-gray-100 bg-gray-50">
-                        <h2 class="text-lg font-bold text-gray-800">Modify User Account Details</h2>
+                    <div class="p-4 sm:p-6 border-b border-gray-100 bg-gray-50">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-800">Modify User Account Details</h2>
                         <p class="text-xs text-gray-500 mt-1">Make adjustments to the system profile properties below.</p>
                     </div>
 
-                    <form th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="POST" class="p-6 space-y-5">
+                    <form th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="POST" class="p-4 sm:p-6 space-y-5">
                         
                         <div>
                             <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                             <input type="text" id="fullName" th:field="*{fullName}" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition text-sm" />
                         </div>
 
                         <div>
                             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                             <input type="email" id="email" th:field="*{email}" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition text-sm" />
                         </div>
 
                         <div>
                             <label for="department" class="block text-sm font-semibold text-gray-700 mb-2">Department</label>
                             <input type="text" id="department" th:field="*{department}" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition text-sm" />
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <label for="role" class="block text-sm font-semibold text-gray-700 mb-2">System Role</label>
-                                <select id="role" th:field="*{role}" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition">
+                                <select id="role" th:field="*{role}" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition text-sm">
                                     <option value="Standard User">Standard User</option>
                                     <option value="Admin">Administrator</option>
                                 </select>
                             </div>
                             <div>
                                 <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Account Status</label>
-                                <select id="status" th:field="*{status}" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition">
+                                <select id="status" th:field="*{status}" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition text-sm">
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
                                 </select>
@@ -87,11 +137,11 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex items-center justify-end space-x-4 border-t border-gray-100 pt-6">
-                            <a th:href="@{/users}" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800 transition">
+                        <div class="flex items-center justify-end space-x-3 sm:space-x-4 border-t border-gray-100 pt-6">
+                            <a th:href="@{/users}" class="px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-800 transition">
                                 Cancel
                             </a>
-                            <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-6 py-2 rounded-lg transition shadow-md">
+                            <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-xs sm:text-sm font-semibold px-5 sm:px-6 py-2 rounded-lg transition shadow-md">
                                 Save Account Changes
                             </button>
                         </div>

@@ -3,11 +3,13 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Requests - KMA IT Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for modal & mobile drawer toggle -->
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 font-sans" x-data="{ openModal: false }">
+<body class="bg-gray-100 font-sans" x-data="{ openModal: false, mobileMenuOpen: false }">
 
     <!-- Toast Notification Banner -->
     <div th:if="${toastMessage}" 
@@ -27,12 +29,30 @@
 
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar -->
-        <div class="w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-20 border-r border-slate-700/50">
-            <div class="h-16 flex items-center justify-center border-b border-slate-700">
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div x-show="mobileMenuOpen" 
+             @click="mobileMenuOpen = false"
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+             style="display: none;">
+        </div>
+
+        <!-- Sidebar Drawer -->
+        <div :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+             class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-50 border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-700">
                 <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
+                <!-- Mobile Menu Close Button -->
+                <button @click="mobileMenuOpen = false" class="lg:hidden text-gray-400 hover:text-white text-lg">
+                    ✕
+                </button>
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-2">
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                 <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
                     Dashboard
                 </a>
@@ -45,46 +65,73 @@
                 <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
                     Helpdesk / Tickets
                 </a>
+                
+                <!-- ONLY VISIBLE TO ADMINS -->
                 <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
                     User Management
                 </a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Activity Logs
+                </a>
             </nav>
             <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
-                KMA IT MANAGEMENT SYSTEM &copy; 2026
+                KMA IT MANAGEMENT SYSTEM &copy; 2026 DESIGNED BY SOG TECH SOLUTIONS 
             </div>
         </div>
 
-        <!-- Main Content Area with kma9.jpeg Background -->
-        <!-- Updated Background Classes: bg-contain & bg-center -->
-<div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-contain bg-fixed relative bg-white"
-     th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.25)), url(' + @{/images/kma9.jpg} + ');'">
+        <!-- Main Content Area with Background Image -->
+        <div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-contain bg-fixed relative bg-white w-full"
+             th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.25)), url(' + @{/images/kma9.jpg} + ');'">
             
             <!-- Header Bar -->
-            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-8 sticky top-0 z-30 border-b border-gray-200/50">
-                <h1 class="text-xl font-bold text-gray-800">Staff Hardware & Item Requests</h1>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
+            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30 border-b border-gray-200/50">
+                <div class="flex items-center space-x-3">
+                    <!-- Hamburger Toggle Button (Mobile Only) -->
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">Staff Item Requests</h1>
+                </div>
+
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="text-right hidden sm:block">
                         <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
                         <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">Admin</span>
                         <span sec:authorize="hasRole('USER')" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">Staff</span>
                     </div>
-                    <form th:action="@{/logout}" method="post">
+
+                    <!-- Clickable Avatar to Profile -->
+                    <a th:href="@{/profile}" class="flex-shrink-0">
+                        <img th:if="${user != null and user.profileImage != null}" 
+                             th:src="@{'/uploads/avatars/' + ${user.profileImage}}" 
+                             alt="Profile Avatar" 
+                             class="w-8 h-8 rounded-full object-cover border-2 border-teal-500 shadow-sm hover:opacity-90 transition">
+                        <div th:unless="${user != null and user.profileImage != null}" 
+                             class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm hover:opacity-90 transition"
+                             th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
+                            U
+                        </div>
+                    </a>
+
+                    <form th:action="@{/logout}" method="post" class="inline">
                         <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition border border-rose-200">Logout</button>
                     </form>
                 </div>
             </header>
 
             <!-- Main Workspace -->
-            <main class="p-8 space-y-6">
+            <main class="p-4 sm:p-8 space-y-6 max-w-7xl mx-auto w-full">
                 
                 <!-- Action Bar -->
-                <div class="flex justify-between items-center bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/60">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 bg-white/90 backdrop-blur-md p-4 sm:p-6 rounded-2xl shadow-sm border border-white/60">
                     <div>
-                        <h2 class="text-lg font-bold text-gray-800">Request Queue</h2>
+                        <h2 class="text-base sm:text-lg font-bold text-gray-800">Request Queue</h2>
                         <p class="text-xs text-gray-500">Track and approve hardware/item requisitions.</p>
                     </div>
                     
-                    <button @click="openModal = true" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm transition">
+                    <button @click="openModal = true" class="w-full sm:w-auto bg-teal-500 hover:bg-teal-600 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg shadow-sm transition">
                         + Submit Item Request
                     </button>
                 </div>
@@ -95,21 +142,21 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-50/70 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
-                                    <th class="py-3.5 px-6 font-semibold">Requested By</th>
-                                    <th class="py-3.5 px-6 font-semibold">Item Requested</th>
-                                    <th class="py-3.5 px-6 font-semibold">Department</th>
-                                    <th class="py-3.5 px-6 font-semibold">Reason</th>
-                                    <th class="py-3.5 px-6 font-semibold">Status</th>
-                                    <th sec:authorize="hasRole('ADMIN')" class="py-3.5 px-6 font-semibold text-right">Admin Actions</th>
+                                    <th class="py-3.5 px-4 sm:px-6 font-semibold">Requested By</th>
+                                    <th class="py-3.5 px-4 sm:px-6 font-semibold">Item Requested</th>
+                                    <th class="py-3.5 px-4 sm:px-6 font-semibold">Department</th>
+                                    <th class="py-3.5 px-4 sm:px-6 font-semibold">Reason</th>
+                                    <th class="py-3.5 px-4 sm:px-6 font-semibold">Status</th>
+                                    <th sec:authorize="hasRole('ADMIN')" class="py-3.5 px-4 sm:px-6 font-semibold text-right">Admin Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100/80 text-sm text-gray-700">
                                 <tr th:each="req : ${requests}" class="hover:bg-teal-50/40 transition">
-                                    <td class="py-4 px-6 font-semibold text-gray-900" th:text="${req.requestedBy}">User</td>
-                                    <td class="py-4 px-6 font-medium text-teal-700" th:text="${req.itemRequested}">Item</td>
-                                    <td class="py-4 px-6" th:text="${req.department}">Department</td>
-                                    <td class="py-4 px-6 text-gray-500 text-xs" th:text="${req.reason}">Reason detail...</td>
-                                    <td class="py-4 px-6">
+                                    <td class="py-4 px-4 sm:px-6 font-semibold text-gray-900 whitespace-nowrap" th:text="${req.requestedBy}">User</td>
+                                    <td class="py-4 px-4 sm:px-6 font-medium text-teal-700 whitespace-nowrap" th:text="${req.itemRequested}">Item</td>
+                                    <td class="py-4 px-4 sm:px-6 whitespace-nowrap" th:text="${req.department}">Department</td>
+                                    <td class="py-4 px-4 sm:px-6 text-gray-500 text-xs min-w-[200px]" th:text="${req.reason}">Reason detail...</td>
+                                    <td class="py-4 px-4 sm:px-6">
                                         <span th:text="${req.status}"
                                               th:classappend="${req.status.name() == 'APPROVED' ? 'bg-emerald-100/80 text-emerald-800' : (req.status.name() == 'REJECTED' ? 'bg-rose-100/80 text-rose-800' : 'bg-amber-100/80 text-amber-800')}"
                                               class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
@@ -118,7 +165,7 @@
                                     </td>
                                     
                                     <!-- Admin Review Controls -->
-                                    <td sec:authorize="hasRole('ADMIN')" class="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                                    <td sec:authorize="hasRole('ADMIN')" class="py-4 px-4 sm:px-6 text-right space-x-2 whitespace-nowrap">
                                         <div th:if="${req.status.name() == 'PENDING'}" class="inline-flex items-center space-x-2">
                                             <!-- Approve Button -->
                                             <form th:action="@{/requests/approve/{id}(id=${req.id})}" method="post" class="inline">

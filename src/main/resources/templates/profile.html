@@ -3,11 +3,13 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - KMA IT Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for drawer toggle and notifications -->
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans" x-data="{ mobileMenuOpen: false }">
 
     <!-- Toast Notification -->
     <div th:if="${toastMessage}" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
@@ -18,34 +20,104 @@
     </div>
 
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white flex flex-col">
-            <div class="h-16 flex items-center justify-center border-b border-slate-700">
-                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
-            </div>
-            <nav class="flex-1 px-4 py-6 space-y-2">
-                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">Dashboard</a>
-                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">Assets Inventory</a>
-                <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">Item Requests</a>
-                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">Helpdesk / Tickets</a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">User Management</a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">Activity Logs</a>
-            </nav>
+        
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div x-show="mobileMenuOpen" 
+             @click="mobileMenuOpen = false"
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+             style="display: none;">
         </div>
 
-        <!-- Content -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8">
-                <h1 class="text-xl font-bold text-gray-800">User Profile Settings</h1>
+        <!-- Sidebar Drawer -->
+        <div :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+             class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-50 border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-700">
+                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
+                <!-- Mobile Menu Close Button -->
+                <button @click="mobileMenuOpen = false" class="lg:hidden text-gray-400 hover:text-white text-lg">
+                    ✕
+                </button>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Dashboard
+                </a>
+                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Assets Inventory
+                </a>
+                <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Item Requests
+                </a>
+                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Helpdesk / Tickets
+                </a>
+                
+                <!-- ONLY VISIBLE TO ADMINS -->
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    User Management
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
+                    Activity Logs
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
+                KMA IT MANAGEMENT SYSTEM &copy; 2026 DESIGNED BY SOG TECH SOLUTIONS 
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 flex flex-col overflow-y-auto w-full">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30 border-b border-gray-200/50">
+                <div class="flex items-center space-x-3">
+                    <!-- Hamburger Toggle Button (Mobile Only) -->
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">User Profile Settings</h1>
+                </div>
+
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
+                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                            Admin
+                        </span>
+                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">
+                            User
+                        </span>
+                    </div>
+
+                    <!-- Header Avatar Display -->
+                    <img th:if="${user != null and user.profileImage != null}" 
+                         th:src="@{'/uploads/avatars/' + ${user.profileImage}}" 
+                         alt="Profile Avatar" 
+                         class="w-8 h-8 rounded-full object-cover border-2 border-teal-500 shadow-sm">
+                    <div th:unless="${user != null and user.profileImage != null}" 
+                         class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm"
+                         th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
+                        U
+                    </div>
+                </div>
             </header>
 
-            <main class="p-8 max-w-2xl">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
-                    <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3">Avatar & Profile Image</h2>
+            <!-- Main Profile Content -->
+            <main class="p-4 sm:p-8 max-w-2xl mx-auto w-full">
+                <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-800 border-b border-gray-100 pb-3">Avatar & Profile Image</h2>
 
                     <!-- Current Avatar Preview -->
-                    <div class="flex items-center space-x-6">
-                        <div class="relative">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+                        <div class="relative flex-shrink-0">
                             <img th:if="${user != null and user.profileImage != null}" 
                                  th:src="@{'/uploads/avatars/' + ${user.profileImage}}" 
                                  alt="Profile Image" 
@@ -59,10 +131,10 @@
                             </div>
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-3 flex-1">
                             <div>
                                 <p class="font-bold text-gray-800 text-base" sec:authentication="name">Username</p>
-                                <p class="text-xs text-gray-500">Upload a PNG, JPG, or GIF file for your profile avatar.</p>
+                                <p class="text-xs text-gray-500 mt-1">Upload a PNG, JPG, or GIF file to serve as your personal avatar across the portal.</p>
                             </div>
 
                             <!-- Remove Avatar Form/Button -->
@@ -79,20 +151,26 @@
                     </div>
 
                     <!-- Upload Form -->
-                    <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data" class="space-y-4">
+                    <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data" class="space-y-4 border-t border-gray-100 pt-6">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Choose Image File</label>
                             <input type="file" name="avatar" accept="image/*" required 
-                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 border border-gray-300 rounded-lg p-2">
+                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 border border-gray-300 rounded-lg p-2 focus:outline-none">
                         </div>
 
-                        <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition shadow-sm">
-                            Upload & Save Avatar
-                        </button>
+                        <div class="flex items-center justify-end space-x-3 pt-2">
+                            <a th:href="@{/}" class="px-4 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-800 transition">
+                                Cancel
+                            </a>
+                            <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md">
+                                Upload & Save Avatar
+                            </button>
+                        </div>
                     </form>
                 </div>
             </main>
         </div>
+
     </div>
 
 </body>
