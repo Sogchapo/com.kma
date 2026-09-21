@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMA IT Portal - Ticket Action Center</title>
+    <title>KMA IT Portal - Support Issues Action Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
@@ -63,10 +63,10 @@
                     Assets Inventory
                 </a>
                 <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Item Requests
+                    Requests
                 </a>
                 <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
-                    Helpdesk / Tickets
+                    Helpdesk 
                 </a>
                 
                 <!-- ONLY VISIBLE TO ADMINS -->
@@ -94,7 +94,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">Ticket Management Center</h1>
+                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">Issues Management Center</h1>
                 </div>
                 
                 <div class="flex items-center space-x-2 sm:space-x-4">
@@ -160,7 +160,7 @@
                         <div class="p-4 sm:p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2 bg-gray-50">
                             <div>
                                 <span class="text-xs font-bold uppercase tracking-wider text-gray-400" th:text="'Ticket #' + ${ticket.id}">#0</span>
-                                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mt-0.5" th:text="${ticket.title}">Ticket Title</h2>
+                                <h2 class="text-lg sm:text-xl font-bold text-gray-800 mt-0.5" th:text="${ticket.title}">Request Title</h2>
                             </div>
                             <span th:text="${ticket.priority}" 
                                   th:classappend="${ticket.priority == 'Critical' || ticket.priority == 'High' ? 'bg-rose-100 text-rose-800' : (ticket.priority == 'Medium' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800')}"
@@ -275,9 +275,9 @@
                         <hr class="border-gray-100 mb-6" />
                         <h4 class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-2">Danger Zone</h4>
                         <a th:href="@{/tickets/delete/{id}(id=${ticket.id})}" 
-                           onclick="return confirm('Are you sure you want to permanently delete this support ticket?');"
+                           onclick="return confirm('Are you sure you want to permanently delete this support issue?');"
                            class="w-full inline-block text-center bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold py-2 rounded-lg transition tracking-wide uppercase">
-                            Delete Ticket
+                            Clear Issue 
                         </a>
                     </div>
                 </div>

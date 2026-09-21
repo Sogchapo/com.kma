@@ -44,10 +44,10 @@
                     Assets Inventory
                 </a>
                 <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Item Requests
+                    Requests
                 </a>
                 <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Helpdesk / Tickets
+                    Helpdesk
                 </a>
                 
                 <!-- ONLY VISIBLE TO ADMINS -->
@@ -119,7 +119,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 Requestsm:grid-cols-2 gap-4">
                             <div>
                                 <label for="assetTag" class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Unique Asset Tag Code</label>
                                 <input type="text" id="assetTag" th:field="*{assetTag}" required placeholder="e.g. KMA-LAP-2026-042"

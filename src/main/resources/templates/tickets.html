@@ -69,7 +69,7 @@
                     Assets
                 </a>
                 <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white shadow-sm">
-                    Helpdesk / Tickets
+                    Helpdesk
                 </a>
                 <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
                     User Management
@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <!-- Main Content Area with kma2 Image Background -->
+        <!-- Main Content Area -->
         <div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-cover bg-fixed relative"
              th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), url(' + @{/images/logo.jpeg} + ');'">
             
@@ -179,14 +179,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/60 flex justify-between items-center">
                         <div>
-                            <p class="text-sm text-gray-500 uppercase font-semibold">Total Tickets Logs</p>
+                            <p class="text-sm text-gray-500 uppercase font-semibold">Total Requests Logs</p>
                             <h3 class="text-3xl font-bold text-gray-800" th:text="${totalTickets}">0</h3>
                         </div>
                         <div class="p-3 bg-blue-100 text-blue-600 rounded-full">📄</div>
                     </div>
                     <div class="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow-sm border border-white/60 flex justify-between items-center">
                         <div>
-                            <p class="text-sm text-gray-500 uppercase font-semibold">Active / Open Tickets</p>
+                            <p class="text-sm text-gray-500 uppercase font-semibold">Active / Open Issues</p>
                             <h3 class="text-3xl font-bold text-rose-600" th:text="${openTickets}">0</h3>
                         </div>
                         <div class="p-3 bg-rose-100 text-rose-600 rounded-full">🚨</div>
@@ -198,7 +198,7 @@
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="text-lg font-bold text-gray-800">IT Assistance & Incident Logs</h2>
                         <a th:href="@{/tickets/new}" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm">
-                            + Open New Ticket
+                            + Open New Issue / Request
                         </a>
                     </div>
                     <div class="overflow-x-auto">
