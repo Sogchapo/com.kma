@@ -16,10 +16,22 @@ public class ActivityLogService {
         this.repository = repository;
     }
 
+    /**
+     * Standard login/logout logging (backward compatibility)
+     */
     public void log(String username, String action, String ipAddress) {
+        logActivity(username, "AUTH", action, "User performed " + action, ipAddress);
+    }
+
+    /**
+     * Detailed activity logging for system-wide operations
+     */
+    public void logActivity(String username, String module, String action, String details, String ipAddress) {
         ActivityLog log = new ActivityLog(
             username,
-            action,
+            module != null ? module.toUpperCase() : "SYSTEM",
+            action != null ? action.toUpperCase() : "UNKNOWN",
+            details,
             ipAddress != null ? ipAddress : "127.0.0.1",
             LocalDateTime.now()
         );

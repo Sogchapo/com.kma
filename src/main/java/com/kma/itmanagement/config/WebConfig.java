@@ -9,9 +9,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Serve uploaded profile images from uploads directory
-        String uploadDir = "file:" + System.getProperty("user.dir") + "/uploads/avatars/";
-        registry.addResourceHandler("/uploads/avatars/**")
+        // Serve all uploaded files (avatars, tickets, etc.) from the root uploads directory
+        String uploadDir = "file:" + System.getProperty("user.dir") + "/uploads/";
+        registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadDir);
     }
 }

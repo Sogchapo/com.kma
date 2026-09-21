@@ -25,18 +25,35 @@ public class AuthenticationEventListener {
             ipAddress = details.getRemoteAddress();
         }
 
-        activityLogService.log(username, "LOGIN", ipAddress);
+        // Log rich login activity under the AUTH module
+        activityLogService.logActivity(
+            username,
+            "AUTH",
+            "LOGIN",
+            "User successfully authenticated and logged into the portal",
+            ipAddress
+        );
     }
 
     @EventListener
     public void onLogoutSuccess(LogoutSuccessEvent event) {
-        String username = event.getAuthentication().getName();
-        String ipAddress = "127.0.0.1";
+        // Note: event.getAuthentication() can sometimes be null on logout depending on the handler
+        if (event.getAuthentication() != null) {
+            String username = event.getAuthentication().getName();
+            String ipAddress = "127.0.0.1";
 
-        if (event.getAuthentication().getDetails() instanceof WebAuthenticationDetails details) {
-            ipAddress = details.getRemoteAddress();
+            if (event.getAuthentication().getDetails() instanceof WebAuthenticationDetails details) {
+                ipAddress = details.getRemoteAddress();
+            }
+
+            // Log rich logout activity under the AUTH module
+            activityLogService.logActivity(
+                username,
+                "AUTH",
+                "LOGOUT",
+                "User successfully terminated session and logged out",
+                ipAddress
+            );
         }
-
-        activityLogService.log(username, "LOGOUT", ipAddress);
     }
 }

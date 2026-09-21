@@ -31,6 +31,7 @@ public class ActivityLogController {
             model.addAttribute("unreadCount", notificationService.getUnreadCount(username));
         }
 
+        // Updated view name to match 'activity-logs.html'
         return "activity-logs";
     }
 }

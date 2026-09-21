@@ -6,6 +6,7 @@ import com.kma.itmanagement.repository.TicketCommentRepository;
 import com.kma.itmanagement.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -20,7 +21,25 @@ public class TicketService {
     }
 
     public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+        List<Ticket> tickets = ticketRepository.findAll();
+        
+        // Sort tickets by priority weight: Critical -> High -> Medium -> Low
+        // Fallback to ID descending (newest first) if priorities are identical
+        tickets.sort(Comparator.comparingInt((Ticket t) -> getPriorityWeight(t.getPriority()))
+                             .thenComparing(Ticket::getId, Comparator.reverseOrder()));
+        
+        return tickets;
+    }
+
+    private int getPriorityWeight(String priority) {
+        if (priority == null) return 5;
+        switch (priority.trim().toLowerCase()) {
+            case "critical": return 1;
+            case "high": return 2;
+            case "medium": return 3;
+            case "low": return 4;
+            default: return 5;
+        }
     }
 
     public Ticket saveTicket(Ticket ticket) {

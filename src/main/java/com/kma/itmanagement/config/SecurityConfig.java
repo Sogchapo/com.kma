@@ -16,10 +16,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll()
-                // Require ADMIN role for user management & deletion actions
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/login").permitAll()
                 .requestMatchers("/users/**", "/assets/delete/**", "/tickets/delete/**").hasRole("ADMIN")
-                // Allow authenticated users to view dashboard, assets, and tickets
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

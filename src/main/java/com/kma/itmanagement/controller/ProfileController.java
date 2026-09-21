@@ -2,7 +2,9 @@ package com.kma.itmanagement.controller;
 
 import com.kma.itmanagement.model.User;
 import com.kma.itmanagement.repository.UserRepository;
+import com.kma.itmanagement.service.ActivityLogService;
 import com.kma.itmanagement.service.NotificationService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,26 +26,42 @@ public class ProfileController {
 
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ActivityLogService activityLogService;
 
-    public ProfileController(UserRepository userRepository, NotificationService notificationService) {
+    public ProfileController(UserRepository userRepository, 
+                             NotificationService notificationService,
+                             ActivityLogService activityLogService) {
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping("/profile")
-    public String showProfilePage(Model model, Principal principal) {
+    public String showProfilePage(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             String username = principal.getName();
             User user = userRepository.findByUsername(username).orElse(null);
             model.addAttribute("user", user);
             model.addAttribute("notifications", notificationService.getUserNotifications(username));
             model.addAttribute("unreadCount", notificationService.getUnreadCount(username));
+
+            // Log activity: User viewed profile page
+            activityLogService.logActivity(
+                username,
+                "PROFILE",
+                "VIEW",
+                "Accessed user profile configuration page",
+                request.getRemoteAddr()
+            );
         }
         return "profile";
     }
 
     @PostMapping("/profile/avatar")
-    public String uploadAvatar(@RequestParam("avatar") MultipartFile file, Principal principal, RedirectAttributes redirectAttributes) {
+    public String uploadAvatar(@RequestParam("avatar") MultipartFile file, 
+                               Principal principal, 
+                               HttpServletRequest request,
+                               RedirectAttributes redirectAttributes) {
         if (file == null || file.isEmpty()) {
             redirectAttributes.addFlashAttribute("toastMessage", "Please select an image file to upload.");
             redirectAttributes.addFlashAttribute("toastType", "error");
@@ -78,6 +96,15 @@ public class ProfileController {
             user.setProfileImage(fileName);
             userRepository.save(user);
 
+            // Log activity: Avatar uploaded
+            activityLogService.logActivity(
+                username,
+                "PROFILE",
+                "UPDATE_AVATAR",
+                "Successfully uploaded and updated user profile avatar",
+                request.getRemoteAddr()
+            );
+
             redirectAttributes.addFlashAttribute("toastMessage", "Profile avatar updated successfully!");
             redirectAttributes.addFlashAttribute("toastType", "success");
 
@@ -91,7 +118,9 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/avatar/delete")
-    public String deleteAvatar(Principal principal, RedirectAttributes redirectAttributes) {
+    public String deleteAvatar(Principal principal, 
+                               HttpServletRequest request,
+                               RedirectAttributes redirectAttributes) {
         if (principal != null) {
             try {
                 String username = principal.getName();
@@ -107,6 +136,15 @@ public class ProfileController {
                     // Clear database field
                     user.setProfileImage(null);
                     userRepository.save(user);
+
+                    // Log activity: Avatar deleted
+                    activityLogService.logActivity(
+                        username,
+                        "PROFILE",
+                        "DELETE_AVATAR",
+                        "Removed user profile avatar image",
+                        request.getRemoteAddr()
+                    );
 
                     redirectAttributes.addFlashAttribute("toastMessage", "Profile avatar removed successfully.");
                     redirectAttributes.addFlashAttribute("toastType", "success");

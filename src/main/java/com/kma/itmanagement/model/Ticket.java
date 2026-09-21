@@ -26,6 +26,8 @@ public class Ticket {
     @Column(nullable = false)
     private String submittedBy; // KMA Employee name/department
 
+    private String attachmentImage; // Stores filename of uploaded issue photo
+
     private LocalDateTime createdAt;
 
     // --- Constructors ---
@@ -60,6 +62,9 @@ public class Ticket {
 
     public String getSubmittedBy() { return submittedBy; }
     public void setSubmittedBy(String submittedBy) { this.submittedBy = submittedBy; }
+
+    public String getAttachmentImage() { return attachmentImage; }
+    public void setAttachmentImage(String attachmentImage) { this.attachmentImage = attachmentImage; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

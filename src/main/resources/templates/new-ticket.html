@@ -9,9 +9,10 @@
     <!-- Alpine.js for mobile drawer toggle -->
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 font-sans" x-data="{ mobileMenuOpen: false }">
+<body class="bg-[#2d8a68] font-sans antialiased" x-data="{ mobileMenuOpen: false }">
 
-    <div class="flex h-screen overflow-hidden">
+    <!-- Outer Frame Layout with Soft Green Outer Background -->
+    <div class="flex h-screen overflow-hidden p-0 sm:p-3 lg:p-4 gap-0 sm:gap-4">
         
         <!-- Mobile Sidebar Backdrop Overlay -->
         <div x-show="mobileMenuOpen" 
@@ -26,129 +27,188 @@
              style="display: none;">
         </div>
 
-        <!-- Sidebar Drawer -->
+        <!-- Sidebar Navigation Drawer -->
         <div :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-             class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-800/95 backdrop-blur-md text-white flex flex-col z-50 border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out">
-            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-700">
-                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
-                <!-- Mobile Menu Close Button -->
-                <button @click="mobileMenuOpen = false" class="lg:hidden text-gray-400 hover:text-white text-lg">
-                    ✕
-                </button>
+             class="fixed lg:static inset-y-0 left-0 w-64 bg-[#2d8a68] text-white flex flex-col justify-between z-50 transform transition-transform duration-300 ease-in-out">
+            
+            <div>
+                <!-- KMA Logo Icon & Brand Title -->
+                <div class="h-20 flex items-center justify-between px-6">
+                    <div class="flex items-center space-x-3">
+                        <img th:src="@{/images/kmalogo.jpeg}" 
+                             alt="KMA Logo" 
+                             class="w-9 h-9 rounded-full object-cover border border-white/40 shadow-sm">
+                        <span class="text-lg font-bold tracking-tight text-white">KMA IT Portal</span>
+                    </div>
+                    <!-- Mobile Menu Close Button -->
+                    <button @click="mobileMenuOpen = false" class="lg:hidden text-white/80 hover:text-white text-lg">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Navigation Links with Soft Curved Active Tab -->
+                <nav class="mt-2 pr-0 pl-3 space-y-1">
+                    <a th:href="@{/}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a th:href="@{/assets}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">🖥️</span>
+                        <span>Assets Inventory</span>
+                    </a>
+                    <a th:href="@{/requests}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">📦</span>
+                        <span>Item Requests</span>
+                    </a>
+                    
+                    <!-- Active Tab: Curved White Extension -->
+                    <a th:href="@{/tickets}" class="relative flex items-center space-x-3 px-4 py-3 text-sm font-semibold text-[#2d8a68] bg-white rounded-l-full shadow-sm">
+                        <span class="text-xl">🎫</span>
+                        <span>Helpdesk</span>
+                    </a>
+                    
+                    <!-- ONLY VISIBLE TO ADMINS -->
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">👥</span>
+                        <span>User Management</span>
+                    </a>
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">📋</span>
+                        <span>Activity Logs</span>
+                    </a>
+                </nav>
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Dashboard
-                </a>
-                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Assets Inventory
-                </a>
-                <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Requests
-                </a>
-                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white">
-                    Helpdesk
-                </a>
-                
-                <!-- ONLY VISIBLE TO ADMINS -->
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    User Management
-                </a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Activity Logs
-                </a>
-            </nav>
-            <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
-                KMA IT MANAGEMENT SYSTEM &copy;Designed by SoG  
+
+            <!-- Sidebar Support Widget -->
+            <div class="p-4 mb-2">
+                <div class="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-4 text-center">
+                    <div class="text-2xl mb-1">🎧</div>
+                    <p class="text-xs font-semibold text-white">Need Support?</p>
+                    <p class="text-[10px] text-white/80 mt-0.5">KMA IT MANAGEMENT SYSTEM</p>
+                    <p class="text-[9px] text-teal-200 mt-2 font-mono">&copy; Designed by SoG</p>
+                </div>
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto w-full">
+        <!-- Main Content Panel Area with Rounded Canvas -->
+        <div class="flex-1 bg-white rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
             
             <!-- Top Navbar -->
-            <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30 border-b border-gray-200/50">
+            <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 sm:px-10">
                 <div class="flex items-center space-x-3">
-                    <!-- Hamburger Toggle Button (Mobile Only) -->
-                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+                    <!-- Mobile Hamburger Button -->
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-[#2d8a68] focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">Support Helpdesk</h1>
+                    <h1 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">SUPPORT HELPDESK</h1>
                 </div>
 
-                <div class="flex items-center space-x-2 sm:space-x-4">
+                <!-- Right Side: Profile Info & Avatar -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="text-right hidden sm:block">
-                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">User</div>
-                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
-                            Admin
-                        </span>
-                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">
-                            User
-                        </span>
+                        <div class="text-sm font-bold text-gray-800" sec:authentication="name">User</div>
+                        <div class="flex justify-end mt-0.5">
+                            <span sec:authorize="hasRole('ADMIN')" class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-[#2d8a68]">
+                                Admin
+                            </span>
+                            <span sec:authorize="hasRole('USER')" class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                                User
+                            </span>
+                        </div>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm"
-                         th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
-                        U
-                    </div>
+
+                    <!-- Dynamic User Avatar Fallback -->
+                    <a th:href="@{/profile}" class="block group" title="Edit Profile">
+                        <div class="w-9 h-9 rounded-full bg-[#2d8a68] group-hover:bg-[#236e53] text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm transition"
+                             th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
+                            U
+                        </div>
+                    </a>
                 </div>
             </header>
 
-            <!-- Form Content -->
-            <main class="p-4 sm:p-8 max-w-2xl mx-auto w-full">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Workspace View -->
+            <main class="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#f8faf9]">
+                <div class="max-w-2xl mx-auto">
                     
-                    <div class="p-4 sm:p-6 border-b border-gray-100 bg-gray-50">
-                        <h2 class="text-base sm:text-lg font-bold text-gray-800">Submit IT Support Ticket</h2>
-                        <p class="text-xs text-gray-500 mt-1">Please provide clear details regarding your technical issue or software request.</p>
-                    </div>
-
-                    <form th:action="@{/tickets/new}" th:object="${ticket}" method="POST" class="p-4 sm:p-6 space-y-5 sm:space-y-6">
+                    <!-- Form Container Card -->
+                    <div class="bg-gray-200/60 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-200/50">
                         
-                        <!-- Row 1: Primary Incident Subject (Full Width) -->
-                        <div>
-                            <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Incident Title</label>
-                            <input type="text" id="title" th:field="*{title}" required placeholder="e.g., Core Switch Offline or Cannot Access Shared Drive"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition text-sm" />
+                        <!-- Form Header -->
+                        <div class="mb-6">
+                            <h2 class="text-base sm:text-lg font-bold text-gray-800">Submit IT Support Issue</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Please provide clear details regarding your technical issue or software request.</p>
                         </div>
 
-                        <!-- Row 2: Metadata Split (Submitter & Severity Level side-by-side) -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <!-- Ticket Form (With enctype for photo upload) -->
+                        <form th:action="@{/tickets/new}" th:object="${ticket}" method="POST" enctype="multipart/form-data" class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs space-y-6">
+                            
+                            <!-- Incident Title -->
                             <div>
-                                <label for="submittedBy" class="block text-sm font-semibold text-gray-700 mb-2">Your Name & Department</label>
-                                <input type="text" id="submittedBy" th:field="*{submittedBy}" required placeholder="e.g., Patricia Mensah (Finance)"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition text-sm" />
+                                <label for="title" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Incident Title</label>
+                                <input type="text" id="title" th:field="*{title}" required placeholder="e.g., Core Switch Offline or Cannot Access Shared Drive"
+                                       class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition" />
                             </div>
+
+                            <!-- Metadata Split -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="submittedBy" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Name </label>
+                                    <input type="text" id="submittedBy" th:field="*{submittedBy}" required placeholder="e.g., Patricia Mensah "
+                                           class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition" />
+                                </div>
+                                <div>
+                                    <label for="department" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Department</label>
+                                    <input type="text" id="department" name="department" placeholder="e.g., Finance"
+                                           class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition" />
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="priority" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Severity Level</label>
+                                    <select id="priority" th:field="*{priority}" class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition">
+                                        <option value="Low">Low (General Inquiry)</option>
+                                        <option value="Medium">Medium (Affects daily tasks)</option>
+                                        <option value="High">High (Major operational hurdle)</option>
+                                        <option value="Critical">Critical (System Outage)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
                             <div>
-                                <label for="priority" class="block text-sm font-semibold text-gray-700 mb-2">Severity Level</label>
-                                <select id="priority" th:field="*{priority}" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition text-sm">
-                                    <option value="Low">Low (General Inquiry)</option>
-                                    <option value="Medium">Medium (Affects daily tasks)</option>
-                                    <option value="High">High (Major operational hurdle)</option>
-                                    <option value="Critical">Critical (System Outage)</option>
-                                </select>
+                                <label for="description" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Description of the Incident</label>
+                                <textarea id="description" th:field="*{description}" rows="4" required placeholder="Describe the steps leading to the failure or what support you need..."
+                                          class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition"></textarea>
                             </div>
-                        </div>
 
-                        <!-- Row 3: Description -->
-                        <div>
-                            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description of the Incident</label>
-                            <textarea id="description" th:field="*{description}" rows="4" required placeholder="Describe the steps leading to the failure or what support you need..."
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition text-sm"></textarea>
-                        </div>
+                            <!-- Snap / Attach Photo of Issue -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Attach Photo of Issue (Optional)</label>
+                                <div class="flex items-center space-x-4">
+                                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50/50 hover:bg-gray-100 transition">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+                                            <svg class="w-7 h-7 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            <p class="mb-1 text-xs text-gray-600"><span class="font-semibold">Click to upload</span> or snap a photo from your device</p>
+                                            <p class="text-[10px] text-gray-400">Supports camera capture on mobile & tablets</p>
+                                        </div>
+                                        <input type="file" name="attachment" accept="image/*" capture="environment" class="hidden" />
+                                    </label>
+                                </div>
+                            </div>
 
-                        <!-- Form Actions -->
-                        <div class="flex items-center justify-end space-x-3 sm:space-x-4 border-t border-gray-100 pt-6">
-                            <a th:href="@{/tickets}" class="px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-800 transition">
-                                Cancel
-                            </a>
-                            <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white text-xs sm:text-sm font-semibold px-5 sm:px-6 py-2 rounded-lg transition shadow-md">
-                                Submit Ticket
-                            </button>
-                        </div>
-                    </form>
-                    
+                            <!-- Form Actions -->
+                            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
+                                <a th:href="@{/tickets}" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="bg-[#2d8a68] hover:bg-[#236e53] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow-sm">
+                                    Submit Issue
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
                 </div>
             </main>
         </div>

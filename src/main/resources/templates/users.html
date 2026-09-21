@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KMA IT Portal - User Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for dropdowns & mobile drawer toggle -->
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 font-sans" x-data="{ mobileMenuOpen: false }">
+<body class="bg-[#2d8a68] font-sans antialiased" x-data="{ mobileMenuOpen: false }">
 
     <!-- Toast Notification Banner -->
     <div th:if="${toastMessage}" 
@@ -21,12 +22,24 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
          x-transition:leave-end="opacity-0 transform translate-y-2 scale-95"
-         class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700">
-        <span th:text="${toastMessage}">Operation completed</span>
-        <button @click="show = false" class="text-gray-400 hover:text-white text-xs ml-2">✕</button>
+         class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700">
+        
+        <span th:if="${toastType == 'success'}" class="text-emerald-400 text-lg">✅</span>
+        <span th:if="${toastType == 'warning'}" class="text-amber-400 text-lg">⚠️</span>
+        <span th:if="${toastType == 'error'}" class="text-rose-400 text-lg">🚨</span>
+        <span th:if="${toastType == null}" class="text-emerald-400 text-lg">ℹ️</span>
+        
+        <div class="text-sm font-medium pr-2" th:text="${toastMessage}">
+            Operation completed successfully!
+        </div>
+
+        <button @click="show = false" class="text-gray-400 hover:text-white text-xs p-1 focus:outline-none">
+            ✕
+        </button>
     </div>
 
-    <div class="flex h-screen overflow-hidden">
+    <!-- Outer Frame Layout with Soft Green Outer Background -->
+    <div class="flex h-screen overflow-hidden p-0 sm:p-3 lg:p-4 gap-0 sm:gap-4">
         
         <!-- Mobile Sidebar Backdrop Overlay -->
         <div x-show="mobileMenuOpen" 
@@ -41,183 +54,253 @@
              style="display: none;">
         </div>
 
-        <!-- Sidebar Drawer -->
+        <!-- Sidebar Navigation Drawer -->
         <div :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-             class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-800 text-white flex flex-col z-50 border-r border-slate-700/50 transform transition-transform duration-300 ease-in-out">
-            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-700">
-                <span class="text-xl font-bold tracking-wider text-teal-400">KMA IT Portal</span>
-                <button @click="mobileMenuOpen = false" class="lg:hidden text-gray-400 hover:text-white text-lg">
-                    ✕
-                </button>
+             class="fixed lg:static inset-y-0 left-0 w-64 bg-[#2d8a68] text-white flex flex-col justify-between z-50 transform transition-transform duration-300 ease-in-out">
+            
+            <div>
+                <!-- KMA Logo Icon & Brand Title -->
+                <div class="h-20 flex items-center justify-between px-6">
+                    <div class="flex items-center space-x-3">
+                        <img th:src="@{/images/kmalogo.jpeg}" 
+                             alt="KMA Logo" 
+                             class="w-9 h-9 rounded-full object-cover border border-white/40 shadow-sm">
+                        <span class="text-lg font-bold tracking-tight text-white">KMA IT Portal</span>
+                    </div>
+                    <!-- Mobile Menu Close Button -->
+                    <button @click="mobileMenuOpen = false" class="lg:hidden text-white/80 hover:text-white text-lg">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="mt-2 pr-0 pl-3 space-y-1">
+                    <a th:href="@{/}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a th:href="@{/assets}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">🖥️</span>
+                        <span>Assets Inventory</span>
+                    </a>
+                    <a th:href="@{/requests}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">📦</span>
+                        <span>Item Requests</span>
+                    </a>
+                    <a th:href="@{/tickets}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">🎫</span>
+                        <span>Helpdesk</span>
+                    </a>
+                    
+                    <!-- ONLY VISIBLE TO ADMINS (Active Capsule Design) -->
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center space-x-3 px-4 py-3 text-sm font-bold text-[#2d8a68] bg-white rounded-l-full shadow-xs transition">
+                        <span class="text-xl">👥</span>
+                        <span>User Management</span>
+                    </a>
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
+                        <span class="text-xl">📋</span>
+                        <span>Activity Logs</span>
+                    </a>
+                </nav>
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                <a th:href="@{/}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Dashboard
-                </a>
-                <a th:href="@{/assets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Assets Inventory
-                </a>
-                <a th:href="@{/requests}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Requests
-                </a>
-                <a th:href="@{/tickets}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Helpdesk
-                </a>
-                
-                <!-- ONLY VISIBLE TO ADMINS -->
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/users}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg bg-teal-500 text-white shadow-sm">
-                    User Management
-                </a>
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/logs}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-700 text-gray-300 transition">
-                    Activity Logs
-                </a>
-            </nav>
-            <div class="p-4 border-t border-slate-700 text-center text-xs text-gray-400">
-                KMA IT MANAGEMENT SYSTEM &copy;Designed by SoG
+
+            <!-- Sidebar Support Widget -->
+            <div class="p-4 mb-2">
+                <div class="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-4 text-center">
+                    <div class="text-2xl mb-1">🎧</div>
+                    <p class="text-xs font-semibold text-white">Need Support?</p>
+                    <p class="text-[10px] text-white/80 mt-0.5">KMA IT MANAGEMENT SYSTEM</p>
+                    <p class="text-[9px] text-emerald-200 mt-2 font-mono">&copy; Designed by SoG</p>
+                </div>
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto bg-no-repeat bg-center bg-cover bg-fixed relative"
-             th:style="'background-image: linear-gradient(rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10)), url(' + @{/images/logo.jpeg} + ');'">
+        <!-- Main Content Panel Area with Rounded Canvas -->
+        <div class="flex-1 bg-white rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
             
             <!-- Top Header Bar -->
-            <header class="h-16 bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30 border-b border-gray-200/50">
+            <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 sm:px-10">
                 <div class="flex items-center space-x-3">
-                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+                    <!-- Hamburger Toggle Button (Mobile Only) -->
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-gray-600 hover:text-[#2d8a68] focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <h1 class="text-base sm:text-xl font-bold text-gray-800 truncate">User Account Management</h1>
+                    <h1 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">USER ACCOUNT MANAGEMENT</h1>
                 </div>
+                
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <!-- Notifications Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="relative p-2.5 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition focus:outline-none">
+                            <span class="text-lg">🔔</span>
+                            <span th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}" class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-xs">0</span>
+                        </button>
 
-                <div class="flex items-center space-x-2 sm:space-x-4">
+                        <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden" style="display: none;">
+                            <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Notifications</span>
+                                <span class="text-[10px] font-bold text-[#2d8a68] bg-emerald-50 px-2 py-0.5 rounded-full" th:text="${unreadCount != null ? unreadCount : 0} + ' Unread'">0 Unread</span>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto divide-y divide-gray-50">
+                                <div th:each="note : ${notifications}" th:classappend="${!note.read} ? 'bg-emerald-50/30' : 'bg-white'" class="p-3 hover:bg-gray-50 transition flex justify-between items-start">
+                                    <div class="space-y-1 pr-2">
+                                        <p class="text-xs font-semibold text-gray-800" th:text="${note.title}">Notification Title</p>
+                                        <p class="text-[11px] text-gray-500 leading-snug" th:text="${note.message}">Details...</p>
+                                        <p class="text-[9px] text-gray-400" th:text="${#temporals.format(note.createdAt, 'MMM dd, HH:mm')}">Date</p>
+                                    </div>
+                                    <a th:if="${!note.read}" th:href="@{/notifications/read/{id}(id=${note.id})}" class="text-[10px] font-bold text-[#2d8a68] hover:text-[#236e53] whitespace-nowrap bg-emerald-100/60 px-2 py-0.5 rounded-lg">Mark Read</a>
+                                </div>
+                                <div th:if="${#lists.isEmpty(notifications)}" class="p-6 text-center text-xs text-gray-400">No notifications available.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-6 w-px bg-gray-200 hidden sm:block"></div>
+
                     <div class="text-right hidden sm:block">
-                        <div class="text-sm font-semibold text-gray-800" sec:authentication="name">Admin User</div>
-                        <span sec:authorize="hasRole('ADMIN')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">Admin</span>
-                        <span sec:authorize="hasRole('USER')" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">Staff</span>
+                        <div class="text-sm font-bold text-gray-800" sec:authentication="name">Admin User</div>
+                        <div class="flex justify-end mt-0.5">
+                            <span sec:authorize="hasRole('ADMIN')" class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-[#2d8a68]">Admin</span>
+                            <span sec:authorize="hasRole('USER')" class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Staff</span>
+                        </div>
                     </div>
 
                     <!-- Profile Avatar Link -->
-                    <a th:href="@{/profile}" class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm hover:opacity-90 transition"
+                    <a th:href="@{/profile}" class="block group" title="Edit Profile">
+                        <img th:if="${user != null and user.profileImage != null}" 
+                             th:src="@{'/uploads/avatars/' + ${user.profileImage}}" 
+                             alt="Profile Avatar" 
+                             class="w-9 h-9 rounded-full object-cover border-2 border-[#2d8a68] shadow-sm">
+                        <div th:unless="${user != null and user.profileImage != null}" 
+                             class="w-9 h-9 rounded-full bg-[#2d8a68] group-hover:bg-[#236e53] text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm transition"
                              th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
                             A
                         </div>
                     </a>
-
+                    
                     <form th:action="@{/logout}" method="post" class="inline ml-1">
-                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 transition">
-                            Logout
-                        </button>
+                        <button type="submit" class="text-xs font-bold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3.5 py-2 rounded-xl border border-rose-200/80 transition">Logout</button>
                     </form>
                 </div>
             </header>
 
-            <main class="p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Workspace Container -->
+            <main class="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#f8faf9] space-y-6">
                 
-                <!-- Registration Form Component -->
-                <div class="bg-white/90 backdrop-blur-md rounded-xl shadow-sm border border-white/60 p-6 h-fit">
-                    <h2 class="text-lg font-bold text-gray-800 mb-1">Register New Staff</h2>
-                    <p class="text-xs text-gray-500 mb-5">Create authorization accounts for internal KMA personnel.</p>
+                <!-- Inner Dashboard Frame Outer Wrap -->
+                <div class="bg-gray-200/60 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-200/50">
                     
-                    <form th:action="@{/users/new}" th:object="${newUser}" method="POST" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username</label>
-                            <input type="text" th:field="*{username}" required class="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition" />
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <!-- Registration Form Component -->
+                        <div class="bg-white rounded-2xl shadow-xs border border-gray-100 p-6 h-fit">
+                            <h2 class="text-base sm:text-lg font-bold text-gray-800 mb-0.5">Register New Staff</h2>
+                            <p class="text-xs text-gray-500 mb-5">Create authorization accounts for internal KMA personnel.</p>
+                            
+                            <form th:action="@{/users/new}" th:object="${newUser}" method="POST" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Username</label>
+                                    <input type="text" th:field="*{username}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-[#2d8a68] focus:bg-white focus:outline-none transition" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Password</label>
+                                    <input type="password" th:field="*{password}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-[#2d8a68] focus:bg-white focus:outline-none transition" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Full Name</label>
+                                    <input type="text" th:field="*{fullName}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-[#2d8a68] focus:bg-white focus:outline-none transition" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Email Address</label>
+                                    <input type="email" th:field="*{email}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-[#2d8a68] focus:bg-white focus:outline-none transition" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Department</label>
+                                    <input type="text" th:field="*{department}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-[#2d8a68] focus:bg-white focus:outline-none transition" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">System Role</label>
+                                    <select th:field="*{role}" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-[#2d8a68] focus:bg-white focus:outline-none transition cursor-pointer">
+                                        <option value="ROLE_USER">Standard User</option>
+                                        <option value="ROLE_ADMIN">Administrator</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full bg-[#2d8a68] hover:bg-[#236e53] text-white text-xs sm:text-sm font-bold py-3 rounded-xl transition mt-2 shadow-xs">
+                                    Add User Account
+                                </button>
+                            </form>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
-                            <input type="password" th:field="*{password}" required class="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Full Name</label>
-                            <input type="text" th:field="*{fullName}" required class="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Email Address</label>
-                            <input type="email" th:field="*{email}" required class="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Department</label>
-                            <input type="text" th:field="*{department}" required class="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">System Role</label>
-                            <select th:field="*{role}" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/80 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition">
-                                <option value="ROLE_USER">Standard User</option>
-                                <option value="ROLE_ADMIN">Administrator</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold py-2.5 rounded-lg transition mt-2 shadow-sm">
-                            Add User Account
-                        </button>
-                    </form>
-                </div>
 
-                <!-- Staff Grid Directory List -->
-                <div class="lg:col-span-2 bg-white/90 backdrop-blur-md rounded-xl shadow-sm border border-white/60 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                        <div>
-                            <h2 class="text-lg font-bold text-gray-800">Staff Directory</h2>
-                            <p class="text-xs text-gray-500 mt-0.5">Manage existing user credentials and permissions.</p>
+                        <!-- Staff Grid Directory List -->
+                        <div class="lg:col-span-2 bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">
+                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-base sm:text-lg font-bold text-gray-800">Staff Directory</h2>
+                                    <p class="text-xs text-gray-500 mt-0.5">Manage existing user credentials and permissions.</p>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50/80 text-gray-500 text-[11px] font-bold uppercase tracking-wider border-b border-gray-100">
+                                            <th class="py-4 px-6">User Details</th>
+                                            <th class="py-4 px-6">Department</th>
+                                            <th class="py-4 px-6">Role</th>
+                                            <th class="py-4 px-6">Status</th>
+                                            <th class="py-4 px-6 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 text-xs sm:text-sm text-gray-700">
+                                        <tr th:each="user : ${users}" class="hover:bg-gray-50/60 transition">
+                                            <td class="py-4 px-6">
+                                                <div class="font-bold text-gray-900" th:text="${user.fullName}">Name</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">
+                                                    <span th:text="${user.username}" class="font-mono text-[#2d8a68] font-bold mr-2">username</span>
+                                                    <span th:text="${user.email}">email@kma.gov.gh</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 px-6 font-medium text-gray-600" th:text="${user.department}">Department</td>
+                                            
+                                            <td class="py-4 px-6 whitespace-nowrap">
+                                                <span th:text="${user.role}" 
+                                                      th:classappend="${user.role == 'ROLE_ADMIN' ? 'bg-purple-100/90 text-purple-800' : 'bg-slate-100 text-slate-800'}"
+                                                      class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
+                                                    Role
+                                                </span>
+                                            </td>
+                                            
+                                            <td class="py-4 px-6 whitespace-nowrap">
+                                                <span th:text="${user.status != null ? user.status : 'Active'}" 
+                                                      th:classappend="${user.status == 'Active' ? 'bg-emerald-100/90 text-[#2d8a68]' : 'bg-gray-100 text-gray-800'}"
+                                                      class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
+                                                    Status
+                                                </span>
+                                            </td>
+                                            <td class="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                                                <a th:href="@{/users/edit/{id}(id=${user.id})}" class="text-[#2d8a68] hover:text-[#236e53] font-bold text-xs bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition">
+                                                    Edit
+                                                </a>
+                                                <a th:href="@{/users/delete/{id}(id=${user.id})}" 
+                                                   onclick="return confirm('Are you sure you want to permanently delete this user account?');" 
+                                                   class="text-rose-600 hover:text-rose-800 font-bold text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl border border-rose-200 transition">
+                                                    Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(users)}">
+                                            <td colspan="5" class="py-12 text-center text-gray-400 bg-white">
+                                                No registered staff users found.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
-                                    <th class="py-3.5 px-6 font-semibold">User Details</th>
-                                    <th class="py-3.5 px-6 font-semibold">Department</th>
-                                    <th class="py-3.5 px-6 font-semibold">Role</th>
-                                    <th class="py-3.5 px-6 font-semibold">Status</th>
-                                    <th class="py-3.5 px-6 font-semibold text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100/80 text-sm text-gray-700">
-                                <tr th:each="user : ${users}" class="hover:bg-teal-50/40 transition">
-                                    <td class="py-4 px-6">
-                                        <div class="font-semibold text-gray-900" th:text="${user.fullName}">Name</div>
-                                        <div class="text-xs text-gray-500">
-                                            <span th:text="${user.username}" class="font-mono text-teal-600 mr-2">username</span>
-                                            <span th:text="${user.email}">email@kma.gov.gh</span>
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-6 text-gray-600" th:text="${user.department}">Department</td>
-                                    
-                                    <td class="py-4 px-6 whitespace-nowrap">
-                                        <span th:text="${user.role}" 
-                                              th:classappend="${user.role == 'ROLE_ADMIN' ? 'text-purple-700 bg-purple-50/80 border-purple-200' : 'text-slate-600 bg-slate-50/80 border-slate-200'}"
-                                              class="px-3 py-1 rounded text-xs font-medium border inline-block whitespace-nowrap">
-                                            Role
-                                        </span>
-                                    </td>
-                                    
-                                    <td class="py-4 px-6">
-                                        <span th:text="${user.status != null ? user.status : 'Active'}" 
-                                              th:classappend="${user.status == 'Active' ? 'bg-emerald-100/80 text-emerald-800' : 'bg-gray-100/80 text-gray-800'}"
-                                              class="px-2.5 py-1 rounded-full text-xs font-semibold">
-                                            Status
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-6 text-sm font-medium text-right space-x-3 whitespace-nowrap">
-                                        <a th:href="@{/users/edit/{id}(id=${user.id})}" class="text-teal-600 hover:text-teal-900 transition font-semibold text-xs bg-teal-50/80 px-2.5 py-1 rounded-lg border border-teal-100">
-                                            Edit
-                                        </a>
-                                        <a th:href="@{/users/delete/{id}(id=${user.id})}" 
-                                           onclick="return confirm('Are you sure you want to permanently delete this user account?');" 
-                                           class="text-rose-600 hover:text-rose-900 transition font-semibold text-xs bg-rose-50/80 px-2.5 py-1 rounded-lg border border-rose-100">
-                                            Delete
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(users)}">
-                                    <td colspan="5" class="text-center py-8 text-gray-400 text-sm bg-white/40">No registered staff users found.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+
                 </div>
 
             </main>
