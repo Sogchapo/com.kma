@@ -1,5 +1,6 @@
 package com.kma.itmanagement.controller;
 
+import com.kma.itmanagement.model.Ticket;
 import com.kma.itmanagement.model.User;
 import com.kma.itmanagement.repository.UserRepository;
 import com.kma.itmanagement.service.ActivityLogService;
@@ -42,6 +43,7 @@ public class ProfileController {
             String username = principal.getName();
             User user = userRepository.findByUsername(username).orElse(null);
             model.addAttribute("user", user);
+            model.addAttribute("ticket", new Ticket()); // Added to satisfy template form bindings
             model.addAttribute("notifications", notificationService.getUserNotifications(username));
             model.addAttribute("unreadCount", notificationService.getUnreadCount(username));
 

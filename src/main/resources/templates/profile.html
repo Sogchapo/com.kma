@@ -4,12 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMA IT Portal - Open Ticket</title>
+    <title>KMA IT Portal - User Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js for mobile drawer toggle -->
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
 <body class="bg-[#2d8a68] font-sans antialiased" x-data="{ mobileMenuOpen: false }">
+
+    <!-- Toast Notification -->
+    <div th:if="${toastMessage}" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+         class="fixed top-5 right-5 z-50 flex items-center space-x-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700">
+        <span th:if="${toastType == 'success'}" class="text-emerald-400">✅</span>
+        <span th:if="${toastType == 'error'}" class="text-rose-400">🚨</span>
+        <div class="text-sm font-medium pr-2" th:text="${toastMessage}">Notification</div>
+    </div>
 
     <!-- Outer Frame Layout with Soft Green Outer Background -->
     <div class="flex h-screen overflow-hidden p-0 sm:p-3 lg:p-4 gap-0 sm:gap-4">
@@ -46,7 +54,7 @@
                     </button>
                 </div>
 
-                <!-- Navigation Links with Soft Curved Active Tab -->
+                <!-- Navigation Links -->
                 <nav class="mt-2 pr-0 pl-3 space-y-1">
                     <a th:href="@{/}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
                         <span class="text-xl">📊</span>
@@ -60,9 +68,7 @@
                         <span class="text-xl">📦</span>
                         <span>Item Requests</span>
                     </a>
-                    
-                    <!-- Active Tab: Curved White Extension -->
-                    <a th:href="@{/tickets}" class="relative flex items-center space-x-3 px-4 py-3 text-sm font-semibold text-[#2d8a68] bg-white rounded-l-full shadow-sm">
+                    <a th:href="@{/tickets}" class="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-l-full transition">
                         <span class="text-xl">🎫</span>
                         <span>Helpdesk</span>
                     </a>
@@ -102,10 +108,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <h1 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">SUPPORT HELPDESK</h1>
+                    <h1 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">USER PROFILE SETTINGS</h1>
                 </div>
 
-                <!-- Right Side: Profile Info & Avatar -->
+                <!-- Right Side: Profile Info, Avatar & Logout -->
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="text-right hidden sm:block">
                         <div class="text-sm font-bold text-gray-800" sec:authentication="name">User</div>
@@ -119,76 +125,91 @@
                         </div>
                     </div>
 
-                    <!-- Dynamic User Avatar Fallback -->
-                    <a th:href="@{/profile}" class="block group" title="Edit Profile">
-                        <div class="w-9 h-9 rounded-full bg-[#2d8a68] group-hover:bg-[#236e53] text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm transition"
+                    <!-- Dynamic User Avatar Thumbnail -->
+                    <div class="relative">
+                        <img th:if="${user != null and user.profileImage != null}" 
+                             th:src="@{'/uploads/avatars/' + ${user.profileImage}}" 
+                             alt="Avatar" 
+                             class="w-9 h-9 rounded-full object-cover border-2 border-[#2d8a68] shadow-sm">
+                        <div th:unless="${user != null and user.profileImage != null}" 
+                             class="w-9 h-9 rounded-full bg-[#2d8a68] text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm"
                              th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
                             U
                         </div>
-                    </a>
+                    </div>
+
+                    <!-- Logout Form Button -->
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-xs">
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </header>
 
-            <!-- Workspace View -->
+            <!-- Workspace View / Main Profile Content -->
             <main class="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#f8faf9]">
                 <div class="max-w-2xl mx-auto">
                     
-                    <!-- Form Container Card -->
-                    <div class="bg-gray-200/60 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-200/50">
-                        
-                        <!-- Form Header -->
-                        <div class="mb-6">
-                            <h2 class="text-base sm:text-lg font-bold text-gray-800">Submit IT Support Ticket</h2>
-                            <p class="text-xs text-gray-500 mt-0.5">Please provide clear details regarding your technical issue or software request.</p>
+                    <!-- Profile Card Container -->
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-200/60 space-y-6">
+                        <div class="border-b border-gray-100 pb-4">
+                            <h2 class="text-base sm:text-lg font-bold text-gray-800">Avatar & Profile Image</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Manage your personal profile picture displayed across the portal.</p>
                         </div>
 
-                        <!-- Ticket Form -->
-                        <form th:action="@{/tickets/new}" th:object="${ticket}" method="POST" class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs space-y-6">
-                            
-                            <!-- Incident Title -->
-                            <div>
-                                <label for="title" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Incident Title</label>
-                                <input type="text" id="title" th:field="*{title}" required placeholder="e.g., Core Switch Offline or Cannot Access Shared Drive"
-                                       class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition" />
-                            </div>
-
-                            <!-- Metadata Split -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="submittedBy" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Your Name & Department</label>
-                                    <input type="text" id="submittedBy" th:field="*{submittedBy}" required placeholder="e.g., Patricia Mensah (Finance)"
-                                           class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition" />
-                                </div>
-                                <div>
-                                    <label for="priority" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Severity Level</label>
-                                    <select id="priority" th:field="*{priority}" class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition">
-                                        <option value="Low">Low (General Inquiry)</option>
-                                        <option value="Medium">Medium (Affects daily tasks)</option>
-                                        <option value="High">High (Major operational hurdle)</option>
-                                        <option value="Critical">Critical (System Outage)</option>
-                                    </select>
+                        <!-- Current Avatar Preview & Info -->
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+                            <div class="relative flex-shrink-0">
+                                <img th:if="${user != null and user.profileImage != null}" 
+                                     th:src="@{'/uploads/avatars/' + ${user.profileImage}}" 
+                                     alt="Profile Image" 
+                                     class="w-24 h-24 rounded-full object-cover border-4 border-[#2d8a68] shadow-md">
+                                <div th:unless="${user != null and user.profileImage != null}" 
+                                     class="w-24 h-24 rounded-full bg-[#2d8a68] text-white flex items-center justify-center font-bold text-3xl shadow-md"
+                                     th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">
+                                    U
                                 </div>
                             </div>
 
-                            <!-- Description -->
+                            <div class="space-y-3 flex-1">
+                                <div>
+                                    <p class="font-bold text-gray-800 text-base" sec:authentication="name">Username</p>
+                                    <p class="text-xs text-gray-500 mt-1">Upload a PNG, JPG, or GIF file to serve as your personal avatar across the portal.</p>
+                                </div>
+
+                                <!-- Remove Avatar Form Button -->
+                                <form th:if="${user != null and user.profileImage != null}" 
+                                      th:action="@{/profile/avatar/delete}" 
+                                      method="post" class="inline-block">
+                                    <button type="submit" 
+                                            onclick="return confirm('Are you sure you want to remove your profile avatar?');"
+                                            class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3.5 py-2 rounded-xl border border-rose-200 transition">
+                                        🗑️ Remove Avatar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Upload Form -->
+                        <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data" class="space-y-4 border-t border-gray-100 pt-6">
                             <div>
-                                <label for="description" class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Description of the Incident</label>
-                                <textarea id="description" th:field="*{description}" rows="4" required placeholder="Describe the steps leading to the failure or what support you need..."
-                                          class="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2d8a68] focus:bg-white transition"></textarea>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Choose Image File</label>
+                                <input type="file" name="avatar" accept="image/*" required 
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#2d8a68]/10 file:text-[#2d8a68] hover:file:bg-[#2d8a68]/20 border border-gray-200 rounded-xl p-2.5 bg-gray-50/50 focus:outline-none transition">
                             </div>
 
-                            <!-- Form Actions -->
                             <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
-                                <a th:href="@{/tickets}" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition">
+                                <a th:href="@{/}" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition">
                                     Cancel
                                 </a>
                                 <button type="submit" class="bg-[#2d8a68] hover:bg-[#236e53] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow-sm">
-                                    Submit Ticket
+                                    Upload & Save Avatar
                                 </button>
                             </div>
                         </form>
-
                     </div>
+
                 </div>
             </main>
         </div>
